@@ -1,0 +1,111 @@
+body {
+  padding: 2em 0 4em;
+  margin: 0;
+  box-sizing: border-box;
+  font-family: sans-serif;
+  background-image: linear-gradient(to bottom right, hsl(208, 73%, 43%), hsl(208, 73%, 21.5%));
+  background-color: hsl(208, 73%, 43%);
+  color: white;
+  min-height: 100vh;
+}
+* {
+  box-sizing: inherit;
+  transition: color 0.1s;
+}
+a {
+  color: inherit;
+  text-decoration: none;
+}
+#transactionList {
+  padding: 0 1em;
+}
+.tx {
+  position: relative;
+  margin: 4px auto;
+  border-radius: 4px;
+  width: 20em;
+  min-width: 80%;
+  max-width: 100%;
+  z-index: 1;
+}
+.txValue {
+  display: block;
+  flex: 0 0 auto;
+  line-height: 1.25;
+}
+.txOutputs {
+  display: flex;
+  flex-wrap: nowrap;
+  flex-direction: row;
+  align-content: stretch;
+}
+.txOut {
+  position: relative;
+  flex: 1 1 auto;
+  border-bottom: 2px solid white;
+  border-width: 0 2px 2px 0;
+  text-align: right;
+  height: 0.25em;
+}
+.txOut:after {
+  content: '';
+  width: 2px;
+  height: 0.75em;
+  background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0.5) 80%, white);
+  position: absolute;
+  right: 0;
+  bottom: 0;
+}
+
+.blockDivider {
+  display: block;
+  margin: -2em -1em 1em;
+  background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0.125));
+  padding: 2.5em 1em 0;
+  color: rgba(0,0,0,0);
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.blockDivider:hover, .blockDivider:focus {
+  color: inherit;
+}
+
+#connectionStatus {
+  position: fixed;
+  top: 0;
+  right: 0;
+  font-size: 0.8em;
+  background: white;
+  border-radius: 0 0 0 0.5em;
+  border: solid black;
+  border-width: 0 0 0.1em 0.1em;
+  padding: 0.5em;
+}
+#connectionStatus:before {
+  display: block;
+  text-transform: uppercase;
+  font-weight: bold;
+  width: 8em;
+  text-align: center;
+  transition: transform 0.5s;
+  transform: none;
+}
+#connectionStatus.is-disconnected:before {
+  content: 'Disconnected';
+  color: red;
+}
+#connectionStatus.is-connecting:before {
+  content: 'Connecting...';
+  color: black;
+}
+#connectionStatus.is-connected:before {
+  content: 'Connected';
+  color: green;
+}
+#connectionStatus.is-connected {
+  transition: transform 0.5s;
+  transition-delay: 2s;
+  transform: translate3d(0, -100%, 0);
+}
