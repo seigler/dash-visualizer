@@ -83,23 +83,42 @@ a {
   color: inherit;
 }
 
-#connectionStatus {
+#muteToggle, #connectionStatus {
   position: fixed;
   top: 0;
-  right: 0;
-  font-size: 0.8em;
+  width: 8em;
   background: white;
-  border-radius: 0 0 0 0.5em;
   border: solid black;
-  border-width: 0 0 0.1em 0.1em;
   padding: 0.5em;
-}
-#connectionStatus:before {
-  display: block;
+  font-size: 0.8em;
   text-transform: uppercase;
   font-weight: bold;
-  width: 8em;
   text-align: center;
+  color: black;
+}
+
+#muteToggle {
+  left: 0;
+  border-radius: 0 0 0.5em 0;
+  border-width: 0 0.1em 0.1em 0;
+  transition: opacity 0.5s;
+  opacity: 0;
+  cursor: pointer;
+}
+#muteToggle:hover {
+  opacity: 1;
+}
+#muteToggle:before {
+  content: 'Mute';
+}
+#muteToggle.is-muted:before {
+  content: 'Un-mute';
+}
+
+#connectionStatus {
+  right: 0;
+  border-radius: 0 0 0 0.5em;
+  border-width: 0 0 0.1em 0.1em;
   transition: transform 0.5s;
   transform: none;
 }

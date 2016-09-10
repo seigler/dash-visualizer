@@ -1,7 +1,15 @@
 'use strict';
 
-(function() {
-  function playSound(url){
+//(function() {
+  var socket = io("https://blockchain.masternode.io/");
+  var transactionList = document.getElementById('transactionList');
+  var muteButton = document.getElementById('muteToggle');
+  var muted = false;
+
+  function playSound(url) {
+    if (muted === true) {
+      return;
+    }
     var audio = document.createElement('audio');
     audio.style.display = "none";
     audio.src = url;
@@ -11,6 +19,14 @@
       audio.remove() //Remove when played.
     };
     document.body.appendChild(audio);
+  }
+
+  var toggleMute = function() {
+    muted = !muted;
+    if (localStorage) {
+      localStorage.setItem('muted', muted);
+    }
+    muteButton.className = (muted === true ? 'is-muted' : '');
   }
 
   var onTransaction = function(data) {
@@ -54,8 +70,18 @@
     transactionList.insertBefore(newBlock, transactionList.firstChild);
   };
 
-  var socket = io("https://blockchain.masternode.io/");
-  var transactionList = document.getElementById('transactionList');
+  if (localStorage) {
+    muted = localStorage.getItem('muted');
+    if (muted === null) {
+      muted = false;
+      localStorage.setItem('muted', muted);
+    } else {
+      muted = (muted == 'true'); // localStorage stores strings not objects?
+    }
+    muteButton.className = (muted === true ? 'is-muted' : '');
+  }
+
+  muteButton.onclick = toggleMute;
 
   socket.on('connect', function() {
     document.getElementById('connectionStatus').className = 'is-connected';
@@ -70,4 +96,4 @@
   socket.on('reconnecting', function() {
     document.getElementById('connectionStatus').className = 'is-connecting';
   });
-})();
+//})();
