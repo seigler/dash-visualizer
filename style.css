@@ -102,11 +102,13 @@ a {
   border-radius: 0 0 0.5em 0;
   border-width: 0 0.1em 0.1em 0;
   transition: opacity 0.5s;
+  transition-delay: 1s;
   opacity: 0;
   cursor: pointer;
 }
 #muteToggle:hover {
   opacity: 1;
+  transition-delay: 0s;
 }
 #muteToggle:before {
   content: 'Mute';
