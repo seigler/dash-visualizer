@@ -4,15 +4,13 @@
     <meta charset="utf-8">
     <title>Dash transaction visualizer</title>
     <link rel="stylesheet" href="style.css">
-    <meta http-equiv="Content-Security-Policy" content="script-src https://seigler.github.io http://insight.masternode.io:3000; connect-src http://insight.masternode.io:3000;">
    </head>
   <body>
     <div id="connectionStatus" class="is-connecting"></div>
 
-    <div id="transactionList">
-    </div>
+    <div id="transactionList"></div>
 
-    <script src="http://insight.masternode.io:3000/socket.io/socket.io.js"></script>
+    <script src="https://blockchain.masternode.io/socket.io/socket.io.js"></script>
     <script src="app.js"></script>
   </body>
 </html>

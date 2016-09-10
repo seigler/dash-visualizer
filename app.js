@@ -1,6 +1,6 @@
 'use strict';
 
-var socket = io("http://insight.masternode.io:3000/");
+var socket = io("https://blockchain.masternode.io/");
 
 function playSound(url){
   var audio = document.createElement('audio');
@@ -25,7 +25,7 @@ var onTransaction = function(data) {
   tx.className = 'tx';
   var txValue = document.createElement('a');
   txValue.className = 'txValue';
-  txValue.href = 'http://insight.masternode.io:3000/tx/' + data.txid;
+  txValue.href = 'https://blockchain.masternode.io/tx/' + data.txid;
   txValue.target = '_blank';
   txValue.setAttribute('rel', 'noopener');
   var txOutputs = document.createElement('div');
@@ -53,7 +53,7 @@ var onBlock = function(data) {
   playSound('assets/whoosh.mp3');
   var newBlock = document.createElement('a');
   newBlock.className = 'blockDivider';
-  newBlock.href = 'http://insight.masternode.io:3000/block/' + data;
+  newBlock.href = 'https://blockchain.masternode.io/block/' + data;
   newBlock.target = '_blank';
   newBlock.setAttribute('rel', 'noopener');
   newBlock.appendChild(document.createTextNode(data));
