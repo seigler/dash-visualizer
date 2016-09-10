@@ -1,6 +1,7 @@
 'use strict';
 
 var socket = io("https://blockchain.masternode.io/");
+var transactionList = document.getElementById('transactionList');
 
 function playSound(url){
   var audio = document.createElement('audio');
@@ -12,10 +13,6 @@ function playSound(url){
     audio.remove() //Remove when played.
   };
   document.body.appendChild(audio);
-}
-
-function scrollToEnd() {
-  window.scrollTo(0,document.body.scrollHeight);
 }
 
 var onTransaction = function(data) {
@@ -44,8 +41,7 @@ var onTransaction = function(data) {
     txOut.title = (value[Object.keys(value)[0]] * 0.00000001);
     txOutputs.appendChild(txOut);
   });
-  document.getElementById('transactionList').appendChild(tx);
-  scrollToEnd();
+  transactionList.insertBefore(tx, transactionList.firstChild);
 };
 
 var onBlock = function(data) {
@@ -57,8 +53,7 @@ var onBlock = function(data) {
   newBlock.target = '_blank';
   newBlock.setAttribute('rel', 'noopener');
   newBlock.appendChild(document.createTextNode(data));
-  document.getElementById('transactionList').appendChild(newBlock);
-  scrollToEnd();
+  transactionList.insertBefore(newBlock, transactionList.firstChild);
 };
 
 socket.on('connect', function() {
