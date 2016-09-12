@@ -2,23 +2,86 @@
 
 //(function() {
   var socket = io("https://blockchain.masternode.io/");
+//  var socket = io("https://insight.bitpay.com/");
   var transactionList = document.getElementById('transactionList');
   var muteButton = document.getElementById('muteToggle');
   var muted = false;
+  var audioContext;
+  var soundBuffers = {
+    'tx': null,
+    'block': null
+  };
+  window.addEventListener('load', init, false);
 
-  function playSound(url) {
+  function init() {
+    try {
+      window.AudioContext = window.AudioContext||window.webkitAudioContext;
+      audioContext = new AudioContext();
+    }
+    catch(e) {
+      console.error('Web Audio API is not supported in this browser');
+      document.getElementById('muteToggle').remove();
+    }
+    try {
+      loadSound('assets/bell.mp3', 'tx');
+      loadSound('assets/whoosh.mp3', 'block');
+    }
+    catch(e) {
+      console.error('Couldn\'t load sounds.');
+    }
+
+    if (localStorage) {
+      muted = localStorage.getItem('muted');
+      if (muted === null) {
+        muted = false;
+        localStorage.setItem('muted', muted);
+      } else {
+        muted = (muted == 'true'); // localStorage stores strings not objects?
+      }
+      muteButton.className = (muted === true ? 'is-muted' : '');
+    }
+
+    muteButton.onclick = toggleMute;
+
+    socket.on('connect', function() {
+      document.getElementById('connectionStatus').className = 'is-connected';
+      // Join the room.
+      socket.emit('subscribe', 'inv');
+    })
+    socket.on('tx', onTransaction);
+    socket.on('block', onBlock);
+    socket.on('disconnect', function() {
+      document.getElementById('connectionStatus').className = 'is-disconnected';
+    });
+    socket.on('reconnecting', function() {
+      document.getElementById('connectionStatus').className = 'is-connecting';
+    });
+  }
+
+  function loadSound(url, bufferName) {
+    var request = new XMLHttpRequest();
+    request.open('GET', url, true);
+    request.responseType = 'arraybuffer';
+
+    // Decode asynchronously
+    request.onload = function() {
+      audioContext.decodeAudioData(request.response, function(buffer) {
+        soundBuffers[bufferName] = buffer;
+      });
+      console.log('Loaded ' + url + ' as "' + bufferName + '"');
+    }
+    request.send();
+  }
+
+  function playSound(bufferName, playbackRate) {
     if (muted === true) {
       return;
     }
-    var audio = document.createElement('audio');
-    audio.style.display = "none";
-    audio.src = url;
-    audio.autoplay = true;
-    audio.loop = false;
-    audio.onended = function(){
-      audio.remove() //Remove when played.
-    };
-    document.body.appendChild(audio);
+    var source = audioContext.createBufferSource();
+    source.buffer = soundBuffers[bufferName];
+    source.connect(audioContext.destination);
+    source.playbackRate.value = playbackRate;
+    source.start();
   }
 
   var toggleMute = function() {
@@ -31,7 +94,8 @@
 
   var onTransaction = function(data) {
     console.log(data);
-    playSound('assets/bell.mp3');
+    var playbackRate = Math.min(Math.max(0.25, 1 - Math.log(data.valueOut)/16), 2);
+    playSound('tx', playbackRate);
     var tx = document.createElement('div');
     tx.className = 'tx';
     var txValue = document.createElement('a');
@@ -60,7 +124,7 @@
 
   var onBlock = function(data) {
     console.log(data);
-    playSound('assets/whoosh.mp3');
+    playSound('block', 1);
     var newBlock = document.createElement('a');
     newBlock.className = 'blockDivider';
     newBlock.href = 'https://blockchain.masternode.io/block/' + data;
@@ -70,30 +134,4 @@
     transactionList.insertBefore(newBlock, transactionList.firstChild);
   };
 
-  if (localStorage) {
-    muted = localStorage.getItem('muted');
-    if (muted === null) {
-      muted = false;
-      localStorage.setItem('muted', muted);
-    } else {
-      muted = (muted == 'true'); // localStorage stores strings not objects?
-    }
-    muteButton.className = (muted === true ? 'is-muted' : '');
-  }
-
-  muteButton.onclick = toggleMute;
-
-  socket.on('connect', function() {
-    document.getElementById('connectionStatus').className = 'is-connected';
-    // Join the room.
-    socket.emit('subscribe', 'inv');
-  })
-  socket.on('tx', onTransaction);
-  socket.on('block', onBlock);
-  socket.on('disconnect', function() {
-    document.getElementById('connectionStatus').className = 'is-disconnected';
-  });
-  socket.on('reconnecting', function() {
-    document.getElementById('connectionStatus').className = 'is-connecting';
-  });
 //})();
