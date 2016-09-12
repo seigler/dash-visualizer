@@ -1,12 +1,12 @@
-'use strict';
+(function() {
+  'use strict';
 
-//(function() {
   var socket = io("https://blockchain.masternode.io/");
-//  var socket = io("https://insight.bitpay.com/");
   var transactionList = document.getElementById('transactionList');
   var muteButton = document.getElementById('muteToggle');
   var muted = false;
   var audioContext;
+  var audioGainNode;
   var soundBuffers = {
     'tx': null,
     'block': null
@@ -17,13 +17,16 @@
     try {
       window.AudioContext = window.AudioContext||window.webkitAudioContext;
       audioContext = new AudioContext();
+      audioGainNode = audioContext.createGain();
+      audioGainNode.connect(audioContext.destination);
+      audioGainNode.gain.value = 0.3;
     }
     catch(e) {
       console.error('Web Audio API is not supported in this browser');
       document.getElementById('muteToggle').remove();
     }
     try {
-      loadSound('assets/bell.mp3', 'tx');
+      loadSound('assets/wood-hit-glass.mp3', 'tx');
       loadSound('assets/whoosh.mp3', 'block');
     }
     catch(e) {
@@ -79,7 +82,7 @@
     }
     var source = audioContext.createBufferSource();
     source.buffer = soundBuffers[bufferName];
-    source.connect(audioContext.destination);
+    source.connect(audioGainNode);
     source.playbackRate.value = playbackRate;
     source.start();
   }
@@ -94,7 +97,7 @@
 
   var onTransaction = function(data) {
     console.log(data);
-    var playbackRate = Math.min(Math.max(0.25, 1 - Math.log(data.valueOut)/16), 2);
+    var playbackRate = Math.min(Math.max(0.25, 2.4 - Math.log(data.valueOut)/5), 7);
     playSound('tx', playbackRate);
     var tx = document.createElement('div');
     tx.className = 'tx';
@@ -134,4 +137,4 @@
     transactionList.insertBefore(newBlock, transactionList.firstChild);
   };
 
-//})();
+})();
