@@ -12,6 +12,7 @@ body {
   background-color: hsl(208, 73%, 43%);
   color: white;
   min-height: 100vh;
+  overflow: hidden;
 }
 * {
   box-sizing: inherit;

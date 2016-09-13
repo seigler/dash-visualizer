@@ -11,6 +11,7 @@
     'tx': null,
     'block': null
   };
+  var domRefList = [];
   window.addEventListener('load', init, false);
 
   function init() {
@@ -122,6 +123,10 @@
       txOut.title = (value[Object.keys(value)[0]] * 0.00000001);
       txOutputs.appendChild(txOut);
     });
+    if (domRefList.unshift(tx) > 100) {
+      var toDelete = domRefList.pop();
+      toDelete.remove();
+    }
     transactionList.insertBefore(tx, transactionList.firstChild);
   };
 
@@ -134,6 +139,10 @@
     newBlock.target = '_blank';
     newBlock.setAttribute('rel', 'noopener');
     newBlock.appendChild(document.createTextNode(data));
+    if (domRefList.unshift(newBlock) > 100) {
+      var toDelete = domRefList.pop();
+      toDelete.remove();
+    }
     transactionList.insertBefore(newBlock, transactionList.firstChild);
   };
 
