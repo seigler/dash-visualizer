@@ -7,6 +7,7 @@
   var muted = false;
   var audioContext;
   var audioGainNode;
+  var backgroundSound;
   var soundBuffers = {
     'tx': null,
     'block': null
@@ -15,25 +16,6 @@
   window.addEventListener('load', init, false);
 
   function init() {
-    try {
-      window.AudioContext = window.AudioContext||window.webkitAudioContext;
-      audioContext = new AudioContext();
-      audioGainNode = audioContext.createGain();
-      audioGainNode.connect(audioContext.destination);
-      audioGainNode.gain.value = 0.3;
-    }
-    catch(e) {
-      console.error('Web Audio API is not supported in this browser');
-      document.getElementById('muteToggle').remove();
-    }
-    try {
-      loadSound('assets/wood-hit-glass.mp3', 'tx');
-      loadSound('assets/whoosh.mp3', 'block');
-    }
-    catch(e) {
-      console.error('Couldn\'t load sounds.');
-    }
-
     if (localStorage) {
       muted = localStorage.getItem('muted');
       if (muted === null) {
@@ -46,6 +28,36 @@
     }
 
     muteButton.onclick = toggleMute;
+
+    try {
+      window.AudioContext = window.AudioContext||window.webkitAudioContext;
+      audioContext = new AudioContext();
+      audioGainNode = audioContext.createGain();
+      audioGainNode.connect(audioContext.destination);
+      audioGainNode.gain.value = 0.3;
+    }
+    catch(e) {
+      console.error('Unable to use Web Audio API');
+      document.getElementById('muteToggle').remove();
+    }
+    try {
+      loadSound('assets/whoosh.mp3', 'block');
+      loadSound('assets/splash-tiny.mp3', 'tx-sm');
+      loadSound('assets/splash-medium.mp3', 'tx-md');
+      loadSound('assets/splash-big.mp3', 'tx-lg');
+      loadSound('assets/creek.mp3', 'background', function() {
+        backgroundSound = audioContext.createBufferSource();
+        backgroundSound.buffer = soundBuffers['background'];
+        backgroundSound.connect(audioGainNode);
+        backgroundSound.loop = true;
+        if (!muted) {
+          backgroundSound.start();
+        }
+      });
+    }
+    catch(e) {
+      console.error('Couldn\'t load sounds.');
+    }
 
     socket.on('connect', function() {
       document.getElementById('connectionStatus').className = 'is-connected';
@@ -62,7 +74,7 @@
     });
   }
 
-  function loadSound(url, bufferName) {
+  function loadSound(url, bufferName, callback) {
     var request = new XMLHttpRequest();
     request.open('GET', url, true);
     request.responseType = 'arraybuffer';
@@ -71,6 +83,9 @@
     request.onload = function() {
       audioContext.decodeAudioData(request.response, function(buffer) {
         soundBuffers[bufferName] = buffer;
+        if (callback) {
+          callback();
+        }
       });
       console.log('Loaded ' + url + ' as "' + bufferName + '"');
     }
@@ -88,18 +103,40 @@
     source.start();
   }
 
+  function playbackRate(value, vMin, vMax, oMin, oMax) {
+    return Math.min(Math.max(oMin,
+      (Math.log(value) - Math.log(vMin)) / (Math.log(vMax) - Math.log(vMin)) * (oMin - oMax) + oMax
+    ), oMax);
+  }
+
   var toggleMute = function() {
     muted = !muted;
     if (localStorage) {
       localStorage.setItem('muted', muted);
     }
     muteButton.className = (muted === true ? 'is-muted' : '');
+    if (muted) {
+      backgroundSound.stop();
+    } else {
+      backgroundSound = audioContext.createBufferSource();
+      backgroundSound.buffer = soundBuffers['background'];
+      backgroundSound.connect(audioGainNode);
+      backgroundSound.loop = true;
+      backgroundSound.start();
+    }
   }
 
   var onTransaction = function(data) {
     console.log(data);
-    var playbackRate = Math.min(Math.max(0.25, 2.4 - Math.log(data.valueOut)/5), 7);
-    playSound('tx', playbackRate);
+    if (!muted) {
+      if (data.valueOut < 10) {
+        playSound('tx-sm', playbackRate(data.valueOut, 0.00001, 10, 0.5, 1.5));
+      } else if (data.valueOut < 1000) {
+        playSound('tx-md', playbackRate(data.valueOut, 10, 1000, 0.25, 1));
+      } else if (data.valueOut >= 1000) {
+        playSound('tx-lg', playbackRate(data.valueOut, 6000, 1000, 0.25, 1));
+      }
+    }
     var tx = document.createElement('div');
     tx.className = 'tx';
     var txValue = document.createElement('a');
@@ -109,12 +146,14 @@
     txValue.setAttribute('rel', 'noopener');
     var txOutputs = document.createElement('div');
     txOutputs.className = 'txOutputs';
+    txOutputs.style.height = (data.valueOut / 10 + 0.1) + 'em'
     txValue.appendChild(document.createTextNode(data.valueOut));
     tx.appendChild(txValue);
     tx.appendChild(txOutputs);
-    var transactions = data.vout.sort(function(a, b) { // sort descending by tx value
-      return b[Object.keys(b)[0]] - a[Object.keys(a)[0]];
-    });
+    var transactions = data.vout;
+//    var transactions = data.vout.sort(function(a, b) { // sort descending by tx value
+//      return b[Object.keys(b)[0]] - a[Object.keys(a)[0]];
+//    });
     transactions.forEach(function(value, index, array) {
       var txOut = document.createElement('div');
       var outputSatoshis = value[Object.keys(value)[0]];
@@ -123,7 +162,7 @@
       txOut.title = (value[Object.keys(value)[0]] * 0.00000001);
       txOutputs.appendChild(txOut);
     });
-    if (domRefList.unshift(tx) > 100) {
+    if (domRefList.unshift(tx) > 300) {
       var toDelete = domRefList.pop();
       toDelete.remove();
     }
@@ -139,7 +178,7 @@
     newBlock.target = '_blank';
     newBlock.setAttribute('rel', 'noopener');
     newBlock.appendChild(document.createTextNode(data));
-    if (domRefList.unshift(newBlock) > 100) {
+    if (domRefList.unshift(newBlock) > 300) {
       var toDelete = domRefList.pop();
       toDelete.remove();
     }

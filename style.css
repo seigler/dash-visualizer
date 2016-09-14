@@ -1,5 +1,5 @@
 body {
-  padding: 2em 0 4em;
+  padding: 0;
   margin: 0;
   box-sizing: border-box;
   font-family: sans-serif;
@@ -12,7 +12,6 @@ body {
   background-color: hsl(208, 73%, 43%);
   color: white;
   min-height: 100vh;
-  overflow: hidden;
 }
 * {
   box-sizing: inherit;
@@ -22,7 +21,22 @@ a {
   text-decoration: none;
 }
 #transactionList {
-  padding: 0 1em;
+  padding: 1em 0 0;
+  mix-blend-mode: screen;
+  opacity: 0.75;
+  height: 100vh;
+  overflow: hidden;
+}
+#transactionList:after {
+  content: '';
+  position: fixed;
+  bottom: 0;
+  height: 8em;
+  left: 0;
+  right: 0;
+  background-image: linear-gradient(to top, black, transparent);
+  z-index: 2;
+  pointer-events: none;
 }
 #connectionStatus.is-connected ~ #transactionList:empty:before {
   content: 'Waiting for first transaction...';
@@ -33,15 +47,14 @@ a {
 }
 .tx {
   position: relative;
-  margin: 4px auto;
-  border-radius: 4px;
+  margin: 3px auto;
   width: 20em;
   min-width: 80%;
   max-width: 100%;
   z-index: 1;
 }
 .txValue {
-  display: block;
+  display: none;
   flex: 0 0 auto;
   line-height: 1.25;
 }
@@ -54,18 +67,18 @@ a {
 .txOut {
   position: relative;
   flex: 1 1 auto;
-  border-bottom: 2px solid white;
-  border-width: 0 2px 2px 0;
-  text-align: right;
-  height: 0.25em;
+  background-color: white;
+}
+.txOut:first {
+  border-left: 3px solid black;
 }
 .txOut:after {
   content: '';
-  width: 2px;
-  height: 0.75em;
-  background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0.5) 80%, white);
+  width: 3px;
+  background: black;
   position: absolute;
   right: 0;
+  top: 0;
   bottom: 0;
 }
 
@@ -106,6 +119,7 @@ a {
   transition-delay: 1s;
   opacity: 0;
   cursor: pointer;
+  z-index: 100;
 }
 #muteToggle:hover {
   opacity: 1;
