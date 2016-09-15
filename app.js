@@ -34,7 +34,7 @@
       audioContext = new AudioContext();
       audioGainNode = audioContext.createGain();
       audioGainNode.connect(audioContext.destination);
-      audioGainNode.gain.value = 0.3;
+      audioGainNode.gain.value = 0.6;
     }
     catch(e) {
       console.error('Unable to use Web Audio API');
