@@ -42,9 +42,9 @@
     }
     try {
       loadSound('assets/whoosh.mp3', 'block');
-      loadSound('assets/splash-tiny.mp3', 'tx-sm');
-      loadSound('assets/splash-medium.mp3', 'tx-md');
-      loadSound('assets/splash-big.mp3', 'tx-lg');
+      loadSound('assets/bell.mp3', 'tx-sm');
+      loadSound('assets/wood-hit-glass.mp3', 'tx-md');
+      loadSound('assets/metallophone.mp3', 'tx-lg');
       loadSound('assets/creek.mp3', 'background', function() {
         backgroundSound = audioContext.createBufferSource();
         backgroundSound.buffer = soundBuffers['background'];
