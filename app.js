@@ -1,7 +1,7 @@
 (function() {
   'use strict';
 
-  var socket = io("https://blockchain.masternode.io/");
+  var socket = io("https://insight.dash.org:443/");
   var transactionList = document.getElementById('transactionList');
   var muteButton = document.getElementById('muteToggle');
   var muted = false;
