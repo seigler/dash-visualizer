@@ -1,0 +1,195 @@
+body {
+  padding: 0;
+  margin: 0;
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
+  font-family: sans-serif;
+  font-size: 140%;
+  background-image: url(assets/Dash-logo.svg), -webkit-gradient(linear, left top, right bottom, from(#1e73be), to(#073a66));
+  background-image: url(assets/Dash-logo.svg), -o-linear-gradient(top left, #1e73be, #073a66);
+  background-image: url(assets/Dash-logo.svg), linear-gradient(to bottom right, #1e73be, #073a66);
+  background-size: 50vmin auto, cover;
+  background-position: center;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  background-color: #1e73be;
+  color: white;
+  min-height: 100vh;
+}
+* {
+  -webkit-box-sizing: inherit;
+          box-sizing: inherit;
+}
+a {
+  color: inherit;
+  text-decoration: none;
+}
+#transactionList {
+  padding: 1em 0 0;
+  mix-blend-mode: screen;
+  opacity: 0.75;
+  height: 100vh;
+  overflow: hidden;
+}
+#transactionList:after {
+  content: '';
+  position: fixed;
+  bottom: 0;
+  height: 8em;
+  left: 0;
+  right: 0;
+  background-image: -webkit-gradient(linear, left bottom, left top, from(black), to(transparent));
+  background-image: -o-linear-gradient(bottom, black, transparent);
+  background-image: linear-gradient(to top, black, transparent);
+  z-index: 2;
+  pointer-events: none;
+}
+#connectionStatus.is-connected ~ #transactionList:empty:before {
+  content: 'Waiting for first transaction...';
+  display: block;
+  text-align: center;
+  font-size: 2em;
+  opacity: 0.5;
+}
+.tx {
+  position: relative;
+  margin: 3px auto;
+  width: 20em;
+  min-width: 80%;
+  max-width: 100%;
+  z-index: 1;
+}
+.txValue {
+  display: none;
+  -webkit-box-flex: 0;
+      -ms-flex: 0 0 auto;
+          flex: 0 0 auto;
+  line-height: 1.25;
+}
+.txOutputs {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-wrap: nowrap;
+      flex-wrap: nowrap;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: row;
+          flex-direction: row;
+  -ms-flex-line-pack: stretch;
+      align-content: stretch;
+}
+.txOut {
+  position: relative;
+  -webkit-box-flex: 1;
+      -ms-flex: 1 1 auto;
+          flex: 1 1 auto;
+  background-color: white;
+}
+.txOut:first {
+  border-left: 3px solid black;
+}
+.txOut:after {
+  content: '';
+  width: 3px;
+  background: black;
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+}
+.blockDivider {
+  display: block;
+  margin: 1em -1em -1.5em;
+  background: -webkit-gradient(linear, left bottom, left top, from(rgba(255, 255, 255, 0)), to(rgba(255, 255, 255, 0.125)));
+  background: -o-linear-gradient(bottom, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.125));
+  background: linear-gradient(to top, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.125));
+  padding: 0.125em 1em 1.5em;
+  color: rgba(0, 0, 0, 0);
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  -o-text-overflow: ellipsis;
+     text-overflow: ellipsis;
+}
+.blockDivider:hover,
+.blockDivider:focus {
+  color: inherit;
+}
+#muteToggle,
+#connectionStatus {
+  position: fixed;
+  top: 0;
+  width: 8em;
+  background: white;
+  border: solid black;
+  padding: 0.5em;
+  font-size: 0.8em;
+  text-transform: uppercase;
+  font-weight: bold;
+  text-align: center;
+  color: black;
+}
+#muteToggle {
+  left: 0;
+  border-radius: 0 0 0.5em 0;
+  border-width: 0 0.1em 0.1em 0;
+  -webkit-transition: opacity 0.5s;
+  -o-transition: opacity 0.5s;
+  transition: opacity 0.5s;
+  -webkit-transition-delay: 1s;
+       -o-transition-delay: 1s;
+          transition-delay: 1s;
+  opacity: 0;
+  cursor: pointer;
+  z-index: 100;
+}
+#muteToggle:hover {
+  opacity: 1;
+  -webkit-transition-delay: 0s;
+       -o-transition-delay: 0s;
+          transition-delay: 0s;
+}
+#muteToggle:before {
+  content: 'Mute';
+}
+#muteToggle.is-muted:before {
+  content: 'Un-mute';
+}
+#connectionStatus {
+  right: 0;
+  border-radius: 0 0 0 0.5em;
+  border-width: 0 0 0.1em 0.1em;
+  -webkit-transition: -webkit-transform 0.5s;
+  transition: -webkit-transform 0.5s;
+  -o-transition: transform 0.5s;
+  transition: transform 0.5s;
+  transition: transform 0.5s, -webkit-transform 0.5s;
+  -webkit-transform: none;
+      -ms-transform: none;
+          transform: none;
+}
+#connectionStatus.is-disconnected:before {
+  content: 'Disconnected';
+  color: red;
+}
+#connectionStatus.is-connecting:before {
+  content: 'Connecting...';
+  color: black;
+}
+#connectionStatus.is-connected:before {
+  content: 'Connected';
+  color: green;
+}
+#connectionStatus.is-connected {
+  -webkit-transition: -webkit-transform 0.5s;
+  transition: -webkit-transform 0.5s;
+  -o-transition: transform 0.5s;
+  transition: transform 0.5s;
+  transition: transform 0.5s, -webkit-transform 0.5s;
+  -webkit-transition-delay: 2s;
+       -o-transition-delay: 2s;
+          transition-delay: 2s;
+  -webkit-transform: translate3d(0, -100%, 0);
+          transform: translate3d(0, -100%, 0);
+}
