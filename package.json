@@ -12,10 +12,15 @@
     "less": "^2.7.2",
     "socket.io": "^2.0.3"
   },
-  "scripts": {},
+  "scripts": {
+    "watch": "brunch watch -s",
+    "build": "brunch build",
+    "deploy": "npm run build && git-directory-deploy --directory public/"
+  },
   "devDependencies": {
     "browser-sync-brunch": "^0.0.9",
     "brunch": "^2.10.10",
+    "git-directory-deploy": "^1.5.1",
     "less-brunch": "^2.10.0"
   }
 }

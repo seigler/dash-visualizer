@@ -1,5 +1,7 @@
 'use strict';
 
+const io = require('socket.io-client');
+
 var socket = io("https://insight.dash.org:443/");
 var transactionList = document.getElementById('transactionList');
 var muteButton = document.getElementById('muteToggle');
