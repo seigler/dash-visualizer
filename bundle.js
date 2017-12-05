@@ -6820,7 +6820,7 @@ var App = {
       playSound('block', 1);
       var newBlock = document.createElement('a');
       newBlock.className = 'blockDivider';
-      newBlock.href = 'https://blockchain.masternode.io/block/' + data;
+      newBlock.href = 'https://insight.dash.org/insight/block/' + data;
       newBlock.target = '_blank';
       newBlock.setAttribute('rel', 'noopener');
       newBlock.appendChild(document.createTextNode(data));
