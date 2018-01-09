@@ -1,11 +1,12 @@
 'use strict';
 
 const io = require('socket.io-client');
+const Matter = require('matter-js');
 
 var App = {
   init: function init() {
     var socket = io("https://insight.dash.org:443/");
-    var transactionList = document.getElementById('transactionList');
+    var playground = document.getElementById('playground');
     var muteButton = document.getElementById('muteToggle');
     var muted = false;
     var audioContext;
@@ -71,6 +72,7 @@ var App = {
 
     var onTransaction = function(data) {
       console.log(data);
+/*
       if (!muted) {
         if (data.valueOut < 10) {
           playSound('tx-sm', playbackRate(data.valueOut, 0.00001, 10, 1, 1.5));
@@ -109,11 +111,14 @@ var App = {
         var toDelete = domRefList.pop();
         toDelete.remove();
       }
-      transactionList.insertBefore(tx, transactionList.firstChild);
+      playground.insertBefore(tx, playground.firstChild);
+*/
+      World.add(engine.world, Bodies.circle(width / 2 + Math.random() * 10, -50, 50, { friction: 0.1 }));
     };
 
     var onBlock = function(data) {
       console.log(data);
+/*
       playSound('block', 1);
       var newBlock = document.createElement('a');
       newBlock.className = 'blockDivider';
@@ -125,7 +130,8 @@ var App = {
         var toDelete = domRefList.pop();
         toDelete.remove();
       }
-      transactionList.insertBefore(newBlock, transactionList.firstChild);
+      playground.insertBefore(newBlock, playground.firstChild);
+*/
     };
 
     if (localStorage) {
@@ -170,6 +176,44 @@ var App = {
     catch(e) {
       console.error('Couldn\'t load sounds.');
     }
+
+    // module aliases
+    var Engine = Matter.Engine,
+        Render = Matter.Render,
+        World = Matter.World,
+        Bodies = Matter.Bodies;
+
+    // create an engine
+    var engine = Engine.create();
+
+    var width = playground.offsetWidth;
+    var height = playground.offsetHeight;
+
+    // create a renderer
+    var render = Render.create({
+        canvas: playground,
+        engine: engine,
+        options: {
+          width: width,
+          height: height
+        }
+    });
+
+    // create two boxes and a ground
+    var edges = [
+      Bodies.rectangle(-10, height / 2, 60, height + 10, { isStatic: true }),
+      Bodies.rectangle(width + 10, height / 2, 60, height + 10, { isStatic: true }),
+      Bodies.rectangle(width/2, height + 10, width + 10, 60, { isStatic: true })
+    ];
+
+    // add all of the bodies to the world
+    World.add(engine.world, edges);
+
+    // run the engine
+    Engine.run(engine);
+
+    // run the renderer
+    Render.run(render);
 
     socket.on('connect', function() {
       document.getElementById('connectionStatus').className = 'is-connected';
