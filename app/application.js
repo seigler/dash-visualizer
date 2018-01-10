@@ -113,7 +113,7 @@ var App = {
       }
       playground.insertBefore(tx, playground.firstChild);
 */
-      World.add(engine.world, Bodies.circle(width / 2 + Math.random() * 10, -50, 50, { friction: 0.1 }));
+      World.add(engine.world, Bodies.circle(width / 2 + Math.random() * 10, height + 50, 50, { density: 0.00001, frictionAir: 0.08 }));
     };
 
     var onBlock = function(data) {
@@ -184,7 +184,8 @@ var App = {
         Bodies = Matter.Bodies;
 
     // create an engine
-    var engine = Engine.create();
+    var world = World.create({ gravity: { y: -1 } }),
+        engine = Engine.create({ world: world });
 
     var width = playground.offsetWidth;
     var height = playground.offsetHeight;
@@ -201,9 +202,9 @@ var App = {
 
     // create two boxes and a ground
     var edges = [
-      Bodies.rectangle(-10, height / 2, 60, height + 10, { isStatic: true }),
-      Bodies.rectangle(width + 10, height / 2, 60, height + 10, { isStatic: true }),
-      Bodies.rectangle(width/2, height + 10, width + 10, 60, { isStatic: true })
+      Bodies.rectangle(-60, height / 2, 60, height + 10, { isStatic: true }),
+      Bodies.rectangle(width + 60, height / 2, 60, height + 10, { isStatic: true }),
+      Bodies.rectangle(width/2, -30, width + 10, 60, { isStatic: true })
     ];
 
     // add all of the bodies to the world
