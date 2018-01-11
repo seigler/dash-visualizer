@@ -73,15 +73,6 @@ var App = {
     var onTransaction = function(data) {
       console.log(data);
 /*
-      if (!muted) {
-        if (data.valueOut < 10) {
-          playSound('tx-sm', playbackRate(data.valueOut, 0.00001, 10, 1, 1.5));
-        } else if (data.valueOut < 1000) {
-          playSound('tx-md', playbackRate(data.valueOut, 10, 1000, 0.5, 1));
-        } else if (data.valueOut >= 1000) {
-          playSound('tx-lg', playbackRate(data.valueOut, 6000, 1000, 0.25, 1));
-        }
-      }
       var tx = document.createElement('div');
       tx.className = 'tx';
       var txValue = document.createElement('a');
@@ -113,7 +104,19 @@ var App = {
       }
       playground.insertBefore(tx, playground.firstChild);
 */
-      World.add(engine.world, Bodies.circle(width / 2 + Math.random() * 10, height + 50, 50, { density: 0.00001, frictionAir: 0.08 }));
+      var position = width * Math.random();
+      var radius = Math.max(2, 20 * Math.log(data.valueOut) / Math.log(10));
+      World.add(engine.world, Bodies.circle(position + Math.random(), height + radius, radius, { density: 0.00001, frictionAir: 0.08, friction: 0.00001 }));
+
+      if (!muted) {
+        if (data.valueOut < 10) {
+          playSound('tx-sm', playbackRate(data.valueOut, 0.00001, 10, 1, 1.5));
+        } else if (data.valueOut < 1000) {
+          playSound('tx-md', playbackRate(data.valueOut, 10, 1000, 0.5, 1));
+        } else if (data.valueOut >= 1000) {
+          playSound('tx-lg', playbackRate(data.valueOut, 6000, 1000, 0.25, 1));
+        }
+      }
     };
 
     var onBlock = function(data) {
@@ -196,15 +199,17 @@ var App = {
         engine: engine,
         options: {
           width: width,
-          height: height
+          height: height,
+          wireframes: false
         }
     });
 
     // create two boxes and a ground
     var edges = [
-      Bodies.rectangle(-60, height / 2, 60, height + 10, { isStatic: true }),
-      Bodies.rectangle(width + 60, height / 2, 60, height + 10, { isStatic: true }),
-      Bodies.rectangle(width/2, -30, width + 10, 60, { isStatic: true })
+      Bodies.rectangle(-30, height / 2, 60, height + 10, { isStatic: true }),
+      Bodies.rectangle(width + 30, height / 2, 60, height + 10, { isStatic: true }),
+      Bodies.rectangle(width/2, -30, width * 1.25, 60, { isStatic: true, angle: Math.PI / 16 }),
+      Bodies.rectangle(width/2, -30, width * 1.25, 60, { isStatic: true, angle: -Math.PI / 16 }),
     ];
 
     // add all of the bodies to the world
