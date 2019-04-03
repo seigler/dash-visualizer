@@ -1,6 +1,6 @@
 {
   "name": "dash-visualizer",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Dash transaction visualizer",
   "main": "app.js",
   "repository": "git@github.com:seigler/dash-visualizer.git",
