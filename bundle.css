@@ -34,7 +34,7 @@ a {
   height: 8em;
   left: 0;
   right: 0;
-  background-image: linear-gradient(to top, black, transparent);
+  background-image: linear-gradient(to top, #1e73be 0%, rgba(30, 115, 190, 0.987) 8.1%, rgba(30, 115, 190, 0.951) 15.5%, rgba(30, 115, 190, 0.896) 22.5%, rgba(30, 115, 190, 0.825) 29%, rgba(30, 115, 190, 0.741) 35.3%, rgba(30, 115, 190, 0.648) 41.2%, rgba(30, 115, 190, 0.55) 47.1%, rgba(30, 115, 190, 0.45) 52.9%, rgba(30, 115, 190, 0.352) 58.8%, rgba(30, 115, 190, 0.259) 64.7%, rgba(30, 115, 190, 0.175) 71%, rgba(30, 115, 190, 0.104) 77.5%, rgba(30, 115, 190, 0.049) 84.5%, rgba(30, 115, 190, 0.013) 91.9%, rgba(30, 115, 190, 0) 100%);
   z-index: 2;
   pointer-events: none;
 }

@@ -6775,12 +6775,12 @@ var App = {
     var onTransaction = function(data) {
       console.log(data);
       if (!muted) {
-        if (data.valueOut < 10) {
-          playSound('tx-sm', playbackRate(data.valueOut, 0.00001, 10, 1, 4));
+        if (data.valueOut < 1) {
+          playSound('tx-sm', playbackRate(data.valueOut, 0.00001, 10, 1.5, 6));
         } else if (data.valueOut < 1000) {
-          playSound('tx-md', playbackRate(data.valueOut, 10, 1000, 0.5, 1));
+          playSound('tx-md', playbackRate(data.valueOut, 1, 1000, 0.5, 2));
         } else if (data.valueOut >= 1000) {
-          playSound('tx-lg', playbackRate(data.valueOut, 6000, 1000, 0.25, 1));
+          playSound('tx-lg', playbackRate(data.valueOut, 6000, 1000, 0.5, 1.5));
         }
       }
       var tx = document.createElement('div');
