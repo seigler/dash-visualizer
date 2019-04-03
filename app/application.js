@@ -73,7 +73,7 @@ var App = {
       console.log(data);
       if (!muted) {
         if (data.valueOut < 10) {
-          playSound('tx-sm', playbackRate(data.valueOut, 0.00001, 10, 1, 1.5));
+          playSound('tx-sm', playbackRate(data.valueOut, 0.00001, 10, 1, 4));
         } else if (data.valueOut < 1000) {
           playSound('tx-md', playbackRate(data.valueOut, 10, 1000, 0.5, 1));
         } else if (data.valueOut >= 1000) {
