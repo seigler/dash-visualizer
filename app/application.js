@@ -110,6 +110,7 @@ var App = {
         PAINT.big[Math.floor(tx.paintIndex * 12)] :
         PAINT.small[Math.floor(tx.paintIndex * 11)]
       ) + ')';
+      paint.style.setProperty('-webkit-mask-image', paint.style.maskImage);
       paint.style.setProperty('--x', tx.x);
       paint.style.setProperty('--y', tx.y);
       paint.style.setProperty('--size', Math.log(1 + tx.value)/Math.log(2));
