@@ -1,0 +1,121 @@
+body {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+  font-family: sans-serif;
+  font-size: 140%;
+  background-image: url('assets/Dash-logo.svg');
+  background-size: 50vmin auto, cover;
+  background-position: center;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  background-color: #bbb;
+  color: black;
+  height: 100vh;
+  overflow: hidden;
+}
+* {
+  box-sizing: inherit;
+}
+a {
+  color: inherit;
+  text-decoration: none;
+}
+#connectionStatus.is-connected ~ #transactionList:empty:before {
+  content: 'Waiting for first transaction...';
+  display: block;
+  text-align: center;
+  font-size: 2em;
+  opacity: 0.5;
+}
+#blockList {
+  margin-left: 80vw;
+  padding-top: 2.5vw;
+}
+.block:first-child {
+  position: absolute;
+  left: 41.125%;
+  top: 50%;
+  width: 77.5vw;
+  height: 77.5vw;
+  transform: translate(-50%,-50%);
+}
+@media (max-height: 77.5vw) {
+  .block:first-child {
+    width: calc(100vh - 5vw);
+    height: calc(100vh - 5vw);
+  }
+}
+.block {
+  width: 15vw;
+  height: 15vw;
+  box-shadow: 0.1em 0.1em 1em hsla(0, 0%, 0%, 0.5);
+  background-color: #eee;
+  margin: 0 auto 1em;
+  position: relative;
+  overflow: hidden;
+}
+.explorer-link {
+  display: none;
+  position: absolute;
+  z-index: 1;
+  font-size: 1.9vmin;
+  text-align: center;
+  background-color: hsla(0, 0%, 100%, 0.5);
+  color: transparent;
+  height: 100%;
+  width: 100%;
+}
+.block:hover .explorer-link {
+  display: block;
+}
+.paint {
+  position: absolute;
+  left: calc(var(--x) * 90% + 5%);
+  top: calc(var(--y) * 90% + 5%);
+  transform: translate(-50%, -50%) rotate(var(--rotation));
+  height: calc(var(--size) * 20% + 20%);
+  width: calc(var(--size) * 20% + 20%);
+  mask-size: contain;
+  mask-repeat: no-repeat;
+  mask-position: center;
+}
+
+#muteToggle, #connectionStatus {
+  position: fixed;
+  top: 0;
+  width: 8em;
+  background: white;
+  border: solid black;
+  padding: 0.5em;
+  font-size: 0.8em;
+  text-transform: uppercase;
+  font-weight: bold;
+  text-align: center;
+  color: black;
+}
+
+#connectionStatus {
+  right: 0;
+  border-radius: 0 0 0 0.5em;
+  border-width: 0 0 0.1em 0.1em;
+  transition: transform 0.5s;
+  transform: none;
+}
+#connectionStatus.is-disconnected:before {
+  content: 'Disconnected';
+  color: red;
+}
+#connectionStatus.is-connecting:before {
+  content: 'Connecting...';
+  color: black;
+}
+#connectionStatus.is-connected:before {
+  content: 'Connected';
+  color: green;
+}
+#connectionStatus.is-connected {
+  transition: transform 0.5s;
+  transition-delay: 2s;
+  transform: translate3d(0, -100%, 0);
+}

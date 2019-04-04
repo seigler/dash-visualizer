@@ -4,172 +4,118 @@ const io = require('socket.io-client');
 
 var App = {
   init: function init() {
-    var socket = io("https://insight.dash.org:443/");
-    var transactionList = document.getElementById('transactionList');
-    var muteButton = document.getElementById('muteToggle');
-    var muted = false;
-    var audioContext;
-    var audioGainNode;
-    var backgroundSound;
-    var soundBuffers = {
-      'tx': null,
-      'block': null
-    };
+    const socket = io("https://insight.dash.org:443/");
+    const blockList = document.getElementById('blockList');
     var domRefList = [];
+    var currentBlock = document.createElement('div');
+    currentBlock.className = 'block';
+    blockList.appendChild(currentBlock);
 
-    function loadSound(url, bufferName, callback) {
-      var request = new XMLHttpRequest();
-      request.open('GET', url, true);
-      request.responseType = 'arraybuffer';
+    const psInputSatoshis = [
+      1000010000,
+      100001000,
+      10000100,
+      1000010,
+      100001
+    ];
 
-      // Decode asynchronously
-      request.onload = function() {
-        audioContext.decodeAudioData(request.response, function(buffer) {
-          soundBuffers[bufferName] = buffer;
-          if (callback) {
-            callback();
-          }
-        });
-        console.log('Loaded ' + url + ' as "' + bufferName + '"');
-      }
-      request.send();
-    }
+    const COLORS = {
+      private: 'black',
+      instant: 'white'
+    };
 
-    function playSound(bufferName, playbackRate) {
-      if (muted === true) {
-        return;
-      }
-      var source = audioContext.createBufferSource();
-      source.buffer = soundBuffers[bufferName];
-      source.connect(audioGainNode);
-      source.playbackRate.value = playbackRate;
-      source.start();
-    }
-
-    function playbackRate(value, vMin, vMax, oMin, oMax) {
-      return Math.min(Math.max(oMin,
-        (Math.log(value) - Math.log(vMin)) / (Math.log(vMax) - Math.log(vMin)) * (oMin - oMax) + oMax
-      ), oMax);
-    }
-
-    var toggleMute = function() {
-      muted = !muted;
-      if (localStorage) {
-        localStorage.setItem('muted', muted);
-      }
-      muteButton.className = (muted === true ? 'is-muted' : '');
-      if (muted) {
-        backgroundSound.stop();
-      } else {
-        backgroundSound = audioContext.createBufferSource();
-        backgroundSound.buffer = soundBuffers['background'];
-        backgroundSound.connect(audioGainNode);
-        backgroundSound.loop = true;
-        backgroundSound.start();
-      }
-    }
-
-    var onTransaction = function(data) {
-      console.log(data);
-      if (!muted) {
-        if (data.valueOut < 10) {
-          playSound('tx-sm', playbackRate(data.valueOut, 0.00001, 10, 1, 1.5));
-        } else if (data.valueOut < 1000) {
-          playSound('tx-md', playbackRate(data.valueOut, 10, 1000, 0.5, 1));
-        } else if (data.valueOut >= 1000) {
-          playSound('tx-lg', playbackRate(data.valueOut, 6000, 1000, 0.25, 1));
-        }
-      }
-      var tx = document.createElement('div');
-      tx.className = 'tx';
-      var txValue = document.createElement('a');
-      txValue.className = 'txValue';
-      txValue.href = 'https://blockchain.masternode.io/tx/' + data.txid;
-      txValue.target = '_blank';
-      txValue.setAttribute('rel', 'noopener');
-      var txOutputs = document.createElement('div');
-      txOutputs.className = 'txOutputs';
-      txOutputs.style.height = (data.valueOut / 10 + 0.1) + 'em'
-      txValue.appendChild(document.createTextNode(data.valueOut));
-      tx.appendChild(txValue);
-      tx.appendChild(txOutputs);
-      var transactions = data.vout;
-    //    var transactions = data.vout.sort(function(a, b) { // sort descending by tx value
-    //      return b[Object.keys(b)[0]] - a[Object.keys(a)[0]];
-    //    });
-      transactions.forEach(function(value, index, array) {
-        var txOut = document.createElement('div');
-        var outputSatoshis = value[Object.keys(value)[0]];
-        txOut.className = 'txOut';
-        txOut.style.width = (outputSatoshis * 0.00001).toFixed(4) + 'px';
-        txOut.title = (value[Object.keys(value)[0]] * 0.00000001);
-        txOutputs.appendChild(txOut);
-      });
-      if (domRefList.unshift(tx) > 300) {
-        var toDelete = domRefList.pop();
-        toDelete.remove();
-      }
-      transactionList.insertBefore(tx, transactionList.firstChild);
+    const PAINT = {
+      big: [
+        'paint-big01.svg',
+        'paint-big02.svg',
+        'paint-big03.svg',
+        'paint-big04.svg',
+        'paint-big05.svg',
+        'paint-big06.svg',
+        'paint-big07.svg',
+        'paint-big08.svg',
+        'paint-big09.svg',
+        'paint-big00.svg',
+        'paint-big01.svg',
+        'paint-big11.svg',
+        'paint-big12.svg'
+      ],
+      small: [
+        'paint01.svg',
+        'paint02.svg',
+        'paint03.svg',
+        'paint04.svg',
+        'paint05.svg',
+        'paint06.svg',
+        'paint07.svg',
+        'paint08.svg',
+        'paint09.svg',
+        'paint00.svg',
+        'paint01.svg',
+        'paint11.svg'
+      ]
     };
 
     var onBlock = function(data) {
       console.log(data);
-      playSound('block', 1);
-      var newBlock = document.createElement('a');
-      newBlock.className = 'blockDivider';
-      newBlock.href = 'https://insight.dash.org/insight/block/' + data;
-      newBlock.target = '_blank';
-      newBlock.setAttribute('rel', 'noopener');
-      newBlock.appendChild(document.createTextNode(data));
-      if (domRefList.unshift(newBlock) > 300) {
+      var blockLink = document.createElement('a');
+      blockLink.className = 'explorer-link';
+      blockLink.href = 'https://insight.dash.org/insight/block/' + data;
+      blockLink.target = '_blank';
+      blockLink.setAttribute('rel', 'noopener');
+      blockLink.appendChild(document.createTextNode(data));
+      currentBlock.appendChild(blockLink);
+
+      currentBlock = document.createElement('div');
+      currentBlock.className = 'block';
+      currentBlock.style.setProperty('--private-color', COLORS.private);
+      currentBlock.style.setProperty('--instant-color', COLORS.instant);
+      currentBlock.style.setProperty('--default-color', COLORS.default);
+
+      if (domRefList.unshift(currentBlock) > 16) {
         var toDelete = domRefList.pop();
         toDelete.remove();
       }
-      transactionList.insertBefore(newBlock, transactionList.firstChild);
+      blockList.insertBefore(currentBlock, blockList.firstChild);
     };
 
-    if (localStorage) {
-      muted = localStorage.getItem('muted');
-      if (muted === null) {
-        muted = false;
-        localStorage.setItem('muted', muted);
-      } else {
-        muted = (muted == 'true'); // localStorage stores strings not objects?
-      }
-      muteButton.className = (muted === true ? 'is-muted' : '');
-    }
+    const onTransaction = function(data) {
+      var transactions = data.vout;
 
-    muteButton.onclick = toggleMute;
-
-    try {
-      window.AudioContext = window.AudioContext||window.webkitAudioContext;
-      audioContext = new AudioContext();
-      audioGainNode = audioContext.createGain();
-      audioGainNode.connect(audioContext.destination);
-      audioGainNode.gain.value = 0.6;
-    }
-    catch(e) {
-      console.error('Unable to use Web Audio API');
-      document.getElementById('muteToggle').remove();
-    }
-    try {
-      loadSound('assets/whoosh.mp3', 'block');
-      loadSound('assets/bell.mp3', 'tx-sm');
-      loadSound('assets/wood-hit-glass.mp3', 'tx-md');
-      loadSound('assets/metallophone.mp3', 'tx-lg');
-      loadSound('assets/creek.mp3', 'background', function() {
-        backgroundSound = audioContext.createBufferSource();
-        backgroundSound.buffer = soundBuffers['background'];
-        backgroundSound.connect(audioGainNode);
-        backgroundSound.loop = true;
-        if (!muted) {
-          backgroundSound.start();
+      var isPrivateSend = true;
+      for (let i = 0; i < transactions.length; i++) {
+        const tx = transactions[i];
+        const outputSatoshis = tx[Object.keys(tx)[0]];
+        if (!psInputSatoshis.includes(outputSatoshis)) {
+          isPrivateSend = false;
+          break;
         }
-      });
-    }
-    catch(e) {
-      console.error('Couldn\'t load sounds.');
-    }
+      }
+
+      const tx = {
+        private: isPrivateSend,
+        instant: data.txlock,
+        value: data.valueOut,
+        x: parseInt(data.txid.slice(0, 4), 16) / 65536,
+        y: parseInt(data.txid.slice(4, 8), 16) / 65536,
+        rotation: parseInt(data.txid.slice(16, 17), 16) / 16,
+        paintIndex: parseInt(data.txid.slice(17, 21), 16) / 65536,
+        color: isPrivateSend ? COLORS.private : data.txlock ? COLORS.instant : '#' + data.txid.slice(21, 27)
+      };
+
+      var paint = document.createElement('div');
+      paint.classList.add('paint');
+      paint.style.backgroundImage = 'linear-gradient(0deg,'+tx.color+','+tx.color+')';
+      paint.style.maskImage = 'url(assets/paint/' + (tx.value > 10 ?
+        PAINT.big[Math.floor(tx.paintIndex * 12)] :
+        PAINT.small[Math.floor(tx.paintIndex * 11)]
+      ) + ')';
+      paint.style.setProperty('--x', tx.x);
+      paint.style.setProperty('--y', tx.y);
+      paint.style.setProperty('--size', Math.log(1 + tx.value)/Math.log(2));
+      paint.style.setProperty('--rotation', tx.rotation * 360 + 'deg');
+      currentBlock.appendChild(paint, currentBlock.firstChild);
+    };
 
     socket.on('connect', function() {
       document.getElementById('connectionStatus').className = 'is-connected';
