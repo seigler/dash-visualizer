@@ -8,6 +8,10 @@
   "license": "MIT",
   "private": false,
   "dependencies": {
+    "babel-brunch": "^7.0.1",
+    "babel-polyfill": "^6.26.0",
+    "babel-preset-env": "^1.7.0",
+    "color-scheme": "^1.0.1",
     "less": "^2.7.2",
     "socket.io": "^2.2.0"
   },

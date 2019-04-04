@@ -78,6 +78,7 @@ a {
   position: absolute;
   left: calc(var(--x) * 90% + 5%);
   top: calc(var(--y) * 90% + 5%);
+  background-image: linear-gradient(0deg, var(--color), var(--color));
   -webkit-transform: translate(-50%, -50%) rotate(var(--rotation));
       -ms-transform: translate(-50%, -50%) rotate(var(--rotation));
           transform: translate(-50%, -50%) rotate(var(--rotation));

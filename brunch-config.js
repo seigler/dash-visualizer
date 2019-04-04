@@ -4,6 +4,12 @@ module.exports = {
     stylesheets: {joinTo: 'bundle.css'},
   },
   plugins: {
+    babel: {
+      presets: ['@babel/preset-env'],
+      ignore: [
+        /^node_modules/
+      ]
+    },
     browserSync: {
       port: 3334,
       logLevel: "debug"
