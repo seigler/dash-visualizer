@@ -18857,10 +18857,15 @@ var App = {
             case 0:
               generateColors = function _ref(blockHash) {
                 // https://github.com/c0bra/color-scheme-js
-                var schemeTypes = ['mono', 'contrast', 'triade', 'tetrade', 'analogic'];
+                var schemeTypes = ['contrast', 'triade', 'triade', 'tetrade', 'tetrade', 'analogic', 'analogic', 'analogic', 'analogic'];
+                var hue = Math.floor(parseInt(prevBlockHash.slice(-3), 16) / 4096 * 360);
+                var schemeFraction = parseInt(prevBlockHash.slice(-5, -3), 16) / 256;
+                var scheme = schemeTypes[Math.floor(schemeFraction * schemeTypes.length)];
                 var blockColorScheme = new _colorScheme["default"]();
-                blockColorScheme.from_hue(Math.floor(parseInt(prevBlockHash.slice(-3), 16) / 4096 * 360)).scheme(schemeTypes[Math.floor(parseInt(prevBlockHash.slice(-5, -3), 16) / 256 * schemeTypes.length)]);
-                return blockColorScheme.colors();
+                blockColorScheme.from_hue(hue).scheme(scheme).add_complement(true);
+                var colors = blockColorScheme.colors();
+                console.log('New color scheme: ' + scheme + ' based on %chue ' + hue, 'background-color:hsl(' + hue + ',100%,50%)');
+                return colors;
               };
 
               socket = _socket["default"].connect("https://insight.dash.org:443/");
@@ -18935,6 +18940,7 @@ var App = {
                   paintIndex: parseInt(data.txid.slice(17, 21), 16) / 65536,
                   color: isPrivateSend ? COLORS["private"] : data.txlock ? COLORS.instant : blockColors[Math.floor(parseInt(data.txid.slice(21, 23), 16) / 256 * blockColors.length)]
                 };
+                console.log('tx: ' + tx.value + (tx["private"] ? ' private' : '') + (tx.instant ? ' instant' : ''));
                 var paint = document.createElement('div');
                 paint.classList.add('paint');
                 paint.style.maskImage = 'url(assets/paint/' + (tx.value > 10 ? PAINT.big[Math.floor(tx.paintIndex * 12)] : PAINT.small[Math.floor(tx.paintIndex * 11)]) + ')';
