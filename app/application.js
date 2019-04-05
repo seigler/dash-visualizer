@@ -89,7 +89,7 @@ var App = {
       var blockColorScheme = new ColorScheme();
       blockColorScheme.from_hue(hue).scheme(scheme).add_complement(true);
       const colors = blockColorScheme.colors();
-      console.log('New color scheme: ' + scheme + ' based on %chue ' + hue, 'background-color:hsl('+hue+',100%,50%)');
+      console.log('New color scheme: ' + scheme + ' based on %chue ' + hue, 'background-color:#'+colors[0]);
       return colors;
     };
 
