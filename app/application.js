@@ -31,8 +31,8 @@ var App = {
     ];
 
     const COLORS = {
-      private: 'black',
-      instant: 'white'
+      private: '000000',
+      instant: 'ffffff'
     };
 
     const PAINT = {
