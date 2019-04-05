@@ -13,14 +13,15 @@ var App = {
     var currentBlock = document.createElement('div');
     currentBlock.className = 'block';
     blockList.appendChild(currentBlock);
-
+    var blockColors = ['000000'];
     var prevBlockHash;
-    await fetch('https://insight.dash.org/api/status?q=getLastBlockHash')
+
+    fetch('https://insight.dash.org/api/status?q=getLastBlockHash')
     .then(resp => resp.json())
     .then(data => {
       prevBlockHash = data.lastblockhash;
+      blockColors = generateColors(prevBlockHash);
     });
-    var blockColors = generateColors(prevBlockHash);
 
     const psInputSatoshis = [
       1000010000,
@@ -72,10 +73,10 @@ var App = {
       const schemeTypes = ['mono', 'contrast', 'triade', 'tetrade', 'analogic'];
       var blockColorScheme = new ColorScheme();
       blockColorScheme.from_hue(
-        Math.floor(parseInt(prevBlockHash.slice(0, 3), 16) / 4096 * 360)
+        Math.floor(parseInt(prevBlockHash.slice(-3), 16) / 4096 * 360)
       ).scheme(
         schemeTypes[
-          Math.floor(parseInt(prevBlockHash.slice(3, 5), 16) / 256 * schemeTypes.length)
+          Math.floor(parseInt(prevBlockHash.slice(-5, -3), 16) / 256 * schemeTypes.length)
         ]
       ).distance(0.75);
       return blockColorScheme.colors();
