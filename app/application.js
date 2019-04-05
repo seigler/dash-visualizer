@@ -78,7 +78,7 @@ var App = {
         schemeTypes[
           Math.floor(parseInt(prevBlockHash.slice(-5, -3), 16) / 256 * schemeTypes.length)
         ]
-      ).distance(0.75);
+      );
       return blockColorScheme.colors();
     };
 
