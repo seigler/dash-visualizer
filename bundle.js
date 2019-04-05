@@ -18850,7 +18850,7 @@ var App = {
     var _init = _asyncToGenerator(
     /*#__PURE__*/
     regeneratorRuntime.mark(function _callee() {
-      var socket, blockList, domRefList, currentBlock, prevBlockHash, blockColors, psInputSatoshis, COLORS, PAINT, generateColors, onBlock, onTransaction;
+      var socket, blockList, domRefList, currentBlock, blockColors, prevBlockHash, psInputSatoshis, COLORS, PAINT, generateColors, onBlock, onTransaction;
       return regeneratorRuntime.wrap(function _callee$(_context) {
         while (1) {
           switch (_context.prev = _context.next) {
@@ -18859,7 +18859,7 @@ var App = {
                 // https://github.com/c0bra/color-scheme-js
                 var schemeTypes = ['mono', 'contrast', 'triade', 'tetrade', 'analogic'];
                 var blockColorScheme = new _colorScheme["default"]();
-                blockColorScheme.from_hue(Math.floor(parseInt(prevBlockHash.slice(0, 3), 16) / 4096 * 360)).scheme(schemeTypes[Math.floor(parseInt(prevBlockHash.slice(3, 5), 16) / 256 * schemeTypes.length)]).distance(0.75);
+                blockColorScheme.from_hue(Math.floor(parseInt(prevBlockHash.slice(-3), 16) / 4096 * 360)).scheme(schemeTypes[Math.floor(parseInt(prevBlockHash.slice(-5, -3), 16) / 256 * schemeTypes.length)]);
                 return blockColorScheme.colors();
               };
 
@@ -18869,15 +18869,13 @@ var App = {
               currentBlock = document.createElement('div');
               currentBlock.className = 'block';
               blockList.appendChild(currentBlock);
-              _context.next = 9;
-              return fetch('https://insight.dash.org/api/status?q=getLastBlockHash').then(function (resp) {
+              blockColors = ['000000'];
+              fetch('https://insight.dash.org/api/status?q=getLastBlockHash').then(function (resp) {
                 return resp.json();
               }).then(function (data) {
                 prevBlockHash = data.lastblockhash;
+                blockColors = generateColors(prevBlockHash);
               });
-
-            case 9:
-              blockColors = generateColors(prevBlockHash);
               psInputSatoshis = [1000010000, 100001000, 10000100, 1000010, 100001];
               COLORS = {
                 "private": '000000',
@@ -18963,7 +18961,7 @@ var App = {
                 document.getElementById('connectionStatus').className = 'is-connecting';
               });
 
-            case 21:
+            case 20:
             case "end":
               return _context.stop();
           }
