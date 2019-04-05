@@ -18880,8 +18880,8 @@ var App = {
               blockColors = generateColors(prevBlockHash);
               psInputSatoshis = [1000010000, 100001000, 10000100, 1000010, 100001];
               COLORS = {
-                "private": 'black',
-                instant: 'white'
+                "private": '000000',
+                instant: 'ffffff'
               };
               PAINT = {
                 big: ['paint-big01.svg', 'paint-big02.svg', 'paint-big03.svg', 'paint-big04.svg', 'paint-big05.svg', 'paint-big06.svg', 'paint-big07.svg', 'paint-big08.svg', 'paint-big09.svg', 'paint-big00.svg', 'paint-big01.svg', 'paint-big11.svg', 'paint-big12.svg'],
