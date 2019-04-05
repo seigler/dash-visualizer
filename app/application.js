@@ -70,16 +70,27 @@ var App = {
 
     function generateColors(blockHash) {
       // https://github.com/c0bra/color-scheme-js
-      const schemeTypes = ['mono', 'contrast', 'triade', 'tetrade', 'analogic'];
-      var blockColorScheme = new ColorScheme();
-      blockColorScheme.from_hue(
-        Math.floor(parseInt(prevBlockHash.slice(-3), 16) / 4096 * 360)
-      ).scheme(
-        schemeTypes[
-          Math.floor(parseInt(prevBlockHash.slice(-5, -3), 16) / 256 * schemeTypes.length)
-        ]
+      const schemeTypes = [
+        'contrast',
+        'triade',
+        'triade',
+        'tetrade',
+        'tetrade',
+        'analogic',
+        'analogic',
+        'analogic',
+        'analogic',
+      ];
+      const hue = Math.floor(
+        parseInt(prevBlockHash.slice(-3), 16) / 4096 * 360
       );
-      return blockColorScheme.colors();
+      const schemeFraction = parseInt(prevBlockHash.slice(-5, -3), 16) / 256;
+      const scheme = schemeTypes[Math.floor(schemeFraction * schemeTypes.length)];
+      var blockColorScheme = new ColorScheme();
+      blockColorScheme.from_hue(hue).scheme(scheme).add_complement(true);
+      const colors = blockColorScheme.colors();
+      console.log('New color scheme: ' + scheme + ' based on %chue ' + hue, 'background-color:hsl('+hue+',100%,50%)');
+      return colors;
     };
 
     var onBlock = function(data) {
@@ -130,6 +141,8 @@ var App = {
           Math.floor(parseInt(data.txid.slice(21, 23), 16) / 256 * blockColors.length)
         ]
       };
+
+      console.log('tx: '+tx.value+(tx.private?' private':'')+(tx.instant?' instant':''));
 
       var paint = document.createElement('div');
       paint.classList.add('paint');
