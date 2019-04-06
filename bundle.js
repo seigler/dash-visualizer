@@ -18830,159 +18830,184 @@ yeast.decode = decode;
 module.exports = yeast;
   })();
 });
-require.register("application.js", function(exports, require, module) {
+require.register("App.js", function(exports, require, module) {
 'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports["default"] = void 0;
 
 var _socket = _interopRequireDefault(require("socket.io-client"));
 
 var _colorScheme = _interopRequireDefault(require("color-scheme"));
 
+var _constants = require("./constants");
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
-function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
 require('babel-polyfill');
 
-var App = {
-  init: function () {
-    var _init = _asyncToGenerator(
-    /*#__PURE__*/
-    regeneratorRuntime.mark(function _callee() {
-      var socket, blockList, domRefList, currentBlock, blockColors, prevBlockHash, psInputSatoshis, COLORS, PAINT, generateColors, onBlock, onTransaction;
-      return regeneratorRuntime.wrap(function _callee$(_context) {
-        while (1) {
-          switch (_context.prev = _context.next) {
-            case 0:
-              generateColors = function _ref(blockHash) {
-                // https://github.com/c0bra/color-scheme-js
-                var schemeTypes = ['contrast', 'triade', 'triade', 'tetrade', 'tetrade', 'analogic', 'analogic', 'analogic', 'analogic'];
-                var hue = Math.floor(parseInt(prevBlockHash.slice(-3), 16) / 4096 * 360);
-                var schemeFraction = parseInt(prevBlockHash.slice(-5, -3), 16) / 256;
-                var scheme = schemeTypes[Math.floor(schemeFraction * schemeTypes.length)];
-                var blockColorScheme = new _colorScheme["default"]();
-                blockColorScheme.from_hue(hue).scheme(scheme).add_complement(true);
-                var colors = blockColorScheme.colors();
-                console.log('New color scheme: ' + scheme + ' based on %chue ' + hue, 'background-color:hsl(' + hue + ',100%,50%)');
-                return colors;
-              };
+var App =
+/*#__PURE__*/
+function () {
+  function App() {
+    var _this = this;
 
-              socket = _socket["default"].connect("https://insight.dash.org:443/");
-              blockList = document.getElementById('blockList');
-              domRefList = [];
-              currentBlock = document.createElement('div');
-              currentBlock.className = 'block';
-              blockList.appendChild(currentBlock);
-              blockColors = ['000000'];
-              fetch('https://insight.dash.org/api/status?q=getLastBlockHash').then(function (resp) {
-                return resp.json();
-              }).then(function (data) {
-                prevBlockHash = data.lastblockhash;
-                blockColors = generateColors(prevBlockHash);
-              });
-              psInputSatoshis = [1000010000, 100001000, 10000100, 1000010, 100001];
-              COLORS = {
-                "private": '000000',
-                instant: 'ffffff'
-              };
-              PAINT = {
-                big: ['paint-big01.svg', 'paint-big02.svg', 'paint-big03.svg', 'paint-big04.svg', 'paint-big05.svg', 'paint-big06.svg', 'paint-big07.svg', 'paint-big08.svg', 'paint-big09.svg', 'paint-big00.svg', 'paint-big01.svg', 'paint-big11.svg', 'paint-big12.svg'],
-                small: ['paint01.svg', 'paint02.svg', 'paint03.svg', 'paint04.svg', 'paint05.svg', 'paint06.svg', 'paint07.svg', 'paint08.svg', 'paint09.svg', 'paint00.svg', 'paint01.svg', 'paint11.svg']
-              };
-              ;
+    _classCallCheck(this, App);
 
-              onBlock = function onBlock(data) {
-                prevBlockHash = data;
-                blockColors = generateColors(prevBlockHash);
-                var blockLink = document.createElement('a');
-                blockLink.className = 'explorer-link';
-                blockLink.href = 'https://insight.dash.org/insight/block/' + data;
-                blockLink.target = '_blank';
-                blockLink.setAttribute('rel', 'noopener');
-                blockLink.appendChild(document.createTextNode(data));
-                currentBlock.appendChild(blockLink);
-                currentBlock = document.createElement('div');
-                currentBlock.className = 'block';
-                currentBlock.style.setProperty('--private-color', COLORS["private"]);
-                currentBlock.style.setProperty('--instant-color', COLORS.instant);
+    this.socket = _socket["default"].connect("https://insight.dash.org:443/");
+    this.domRefList = [];
+    this.blockList = document.getElementById('blockList');
+    this.currentBlock = document.createElement('div');
+    this.currentBlock.className = 'block';
+    this.blockList.appendChild(this.currentBlock);
+    this.blockColors = ['000000'];
+    this.prevBlockHash = null;
+    fetch('https://insight.dash.org/api/status?q=getLastBlockHash').then(function (resp) {
+      return resp.json();
+    }).then(function (data) {
+      _this.prevBlockHash = data.lastblockhash;
+      _this.blockColors = App.generateColors(data.lastblockhash);
+    });
+    this.socket.on('connect', function () {
+      document.getElementById('connectionStatus').className = 'is-connected'; // Join the room.
 
-                if (domRefList.unshift(currentBlock) > 16) {
-                  var toDelete = domRefList.pop();
-                  toDelete.remove();
-                }
+      _this.socket.emit('subscribe', 'inv');
+    });
+    this.socket.on('tx', this.onTransaction.bind(this));
+    this.socket.on('block', this.onBlock.bind(this));
+    this.socket.on('disconnect', function () {
+      document.getElementById('connectionStatus').className = 'is-disconnected';
+    });
+    this.socket.on('reconnecting', function () {
+      document.getElementById('connectionStatus').className = 'is-connecting';
+    });
+  }
 
-                blockList.insertBefore(currentBlock, blockList.firstChild);
-              };
+  _createClass(App, [{
+    key: "onBlock",
+    value: function onBlock(data) {
+      this.prevBlockHash = data;
+      this.blockColors = App.generateColors(this.prevBlockHash);
+      var blockLink = document.createElement('a');
+      blockLink.className = 'explorer-link';
+      blockLink.href = 'https://insight.dash.org/insight/block/' + data;
+      blockLink.target = '_blank';
+      blockLink.setAttribute('rel', 'noopener');
+      blockLink.appendChild(document.createTextNode(data));
+      this.currentBlock.appendChild(blockLink);
+      this.currentBlock = document.createElement('div');
+      this.currentBlock.className = 'block';
+      this.currentBlock.style.setProperty('--private-color', _constants.COLORS["private"]);
+      this.currentBlock.style.setProperty('--instant-color', _constants.COLORS.instant);
 
-              onTransaction = function onTransaction(data) {
-                var transactions = data.vout;
-                var isPrivateSend = true;
+      if (domRefList.unshift(this.currentBlock) > 16) {
+        var toDelete = domRefList.pop();
+        toDelete.remove();
+      }
 
-                for (var i = 0; i < transactions.length; i++) {
-                  var _tx = transactions[i];
-
-                  var outputSatoshis = _tx[Object.keys(_tx)[0]];
-
-                  if (!psInputSatoshis.includes(outputSatoshis)) {
-                    isPrivateSend = false;
-                    break;
-                  }
-                }
-
-                var tx = {
-                  "private": isPrivateSend,
-                  instant: data.txlock,
-                  value: data.valueOut,
-                  x: parseInt(data.txid.slice(0, 4), 16) / 65536,
-                  y: parseInt(data.txid.slice(4, 8), 16) / 65536,
-                  rotation: parseInt(data.txid.slice(16, 17), 16) / 16,
-                  paintIndex: parseInt(data.txid.slice(17, 21), 16) / 65536,
-                  color: isPrivateSend ? COLORS["private"] : data.txlock ? COLORS.instant : blockColors[Math.floor(parseInt(data.txid.slice(21, 23), 16) / 256 * blockColors.length)]
-                };
-                console.log('tx: ' + tx.value + (tx["private"] ? ' private' : '') + (tx.instant ? ' instant' : ''));
-                var paint = document.createElement('div');
-                paint.classList.add('paint');
-                paint.style.maskImage = 'url(assets/paint/' + (tx.value > 10 ? PAINT.big[Math.floor(tx.paintIndex * 12)] : PAINT.small[Math.floor(tx.paintIndex * 11)]) + ')';
-                paint.style.setProperty('-webkit-mask-image', paint.style.maskImage);
-                paint.style.setProperty('--x', tx.x);
-                paint.style.setProperty('--y', tx.y);
-                paint.style.setProperty('--size', Math.log(1 + tx.value) / Math.log(2));
-                paint.style.setProperty('--rotation', tx.rotation * 360 + 'deg');
-                paint.style.setProperty('--color', '#' + tx.color);
-                currentBlock.appendChild(paint, currentBlock.firstChild);
-              };
-
-              socket.on('connect', function () {
-                document.getElementById('connectionStatus').className = 'is-connected'; // Join the room.
-
-                socket.emit('subscribe', 'inv');
-              });
-              socket.on('tx', onTransaction);
-              socket.on('block', onBlock);
-              socket.on('disconnect', function () {
-                document.getElementById('connectionStatus').className = 'is-disconnected';
-              });
-              socket.on('reconnecting', function () {
-                document.getElementById('connectionStatus').className = 'is-connecting';
-              });
-
-            case 20:
-            case "end":
-              return _context.stop();
-          }
-        }
-      }, _callee);
-    }));
-
-    function init() {
-      return _init.apply(this, arguments);
+      this.blockList.insertBefore(this.currentBlock, this.blockList.firstChild);
     }
+  }, {
+    key: "onTransaction",
+    value: function onTransaction(data) {
+      var transactions = data.vout;
+      var isPrivateSend = true;
 
-    return init;
-  }()
+      for (var i = 0; i < transactions.length; i++) {
+        var _tx = transactions[i];
+
+        var outputSatoshis = _tx[Object.keys(_tx)[0]];
+
+        if (!_constants.psInputSatoshis.includes(outputSatoshis)) {
+          isPrivateSend = false;
+          break;
+        }
+      }
+
+      var tx = {
+        "private": isPrivateSend,
+        instant: data.txlock,
+        value: data.valueOut,
+        x: parseInt(data.txid.slice(0, 4), 16) / 65536,
+        y: parseInt(data.txid.slice(4, 8), 16) / 65536,
+        rotation: parseInt(data.txid.slice(16, 17), 16) / 16,
+        paintIndex: parseInt(data.txid.slice(17, 21), 16) / 65536,
+        color: isPrivateSend ? _constants.COLORS["private"] : data.txlock ? _constants.COLORS.instant : this.blockColors[Math.floor(parseInt(data.txid.slice(21, 23), 16) / 256 * this.blockColors.length)]
+      };
+      console.log('tx: ' + tx.value + (tx["private"] ? ' private' : '') + (tx.instant ? ' instant' : ''));
+      var paint = document.createElement('div');
+      paint.classList.add('paint');
+      paint.style.maskImage = 'url(assets/paint/' + (tx.value > 10 ? _constants.PAINT.big[Math.floor(tx.paintIndex * 12)] : _constants.PAINT.small[Math.floor(tx.paintIndex * 11)]) + ')';
+      paint.style.setProperty('-webkit-mask-image', paint.style.maskImage);
+      paint.style.setProperty('--x', tx.x);
+      paint.style.setProperty('--y', tx.y);
+      paint.style.setProperty('--size', Math.log(1 + tx.value) / Math.log(2));
+      paint.style.setProperty('--rotation', tx.rotation * 360 + 'deg');
+      paint.style.setProperty('--color', '#' + tx.color);
+      this.currentBlock.appendChild(paint, this.currentBlock.firstChild);
+    }
+  }], [{
+    key: "generateColors",
+    value: function generateColors(blockHash) {
+      // https://github.com/c0bra/color-scheme-js
+      var schemeTypes = ['contrast', 'triade', 'triade', 'tetrade', 'tetrade', 'analogic', 'analogic', 'analogic', 'analogic'];
+      var hue = Math.floor(parseInt(blockHash.slice(-3), 16) / 4096 * 360);
+      var schemeFraction = parseInt(blockHash.slice(-5, -3), 16) / 256;
+      var scheme = schemeTypes[Math.floor(schemeFraction * schemeTypes.length)];
+      var blockColorScheme = new _colorScheme["default"]();
+      blockColorScheme.from_hue(hue).scheme(scheme).add_complement(true);
+      var colors = blockColorScheme.colors();
+      console.log('New color scheme: ' + scheme + ' based on %chue ' + hue, 'background-color:#' + colors[0]);
+      return colors;
+    }
+  }]);
+
+  return App;
+}();
+
+exports["default"] = App;
+;
+});
+
+require.register("constants.js", function(exports, require, module) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.PAINT = exports.COLORS = exports.psInputSatoshis = void 0;
+var psInputSatoshis = [1000010000, 100001000, 10000100, 1000010, 100001];
+exports.psInputSatoshis = psInputSatoshis;
+var COLORS = {
+  "private": '000000',
+  instant: 'ffffff'
 };
-module.exports = App;
+exports.COLORS = COLORS;
+var PAINT = {
+  big: ['paint-big01.svg', 'paint-big02.svg', 'paint-big03.svg', 'paint-big04.svg', 'paint-big05.svg', 'paint-big06.svg', 'paint-big07.svg', 'paint-big08.svg', 'paint-big09.svg', 'paint-big00.svg', 'paint-big01.svg', 'paint-big11.svg', 'paint-big12.svg'],
+  small: ['paint01.svg', 'paint02.svg', 'paint03.svg', 'paint04.svg', 'paint05.svg', 'paint06.svg', 'paint07.svg', 'paint08.svg', 'paint09.svg', 'paint00.svg', 'paint01.svg', 'paint11.svg']
+};
+exports.PAINT = PAINT;
+});
+
+require.register("main.js", function(exports, require, module) {
+"use strict";
+
+var _App = _interopRequireDefault(require("./App"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+document.addEventListener('DOMContentLoaded', function () {
+  new _App["default"]();
+});
 });
 
 require.alias("babel-polyfill/lib/index.js", "babel-polyfill");
