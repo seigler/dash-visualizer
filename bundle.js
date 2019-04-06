@@ -18908,8 +18908,8 @@ function () {
       this.currentBlock.style.setProperty('--private-color', _constants.COLORS["private"]);
       this.currentBlock.style.setProperty('--instant-color', _constants.COLORS.instant);
 
-      if (domRefList.unshift(this.currentBlock) > 16) {
-        var toDelete = domRefList.pop();
+      if (this.domRefList.unshift(this.currentBlock) > 16) {
+        var toDelete = this.domRefList.pop();
         toDelete.remove();
       }
 
@@ -18918,29 +18918,16 @@ function () {
   }, {
     key: "onTransaction",
     value: function onTransaction(data) {
-      var transactions = data.vout;
-      var isPrivateSend = true;
-
-      for (var i = 0; i < transactions.length; i++) {
-        var _tx = transactions[i];
-
-        var outputSatoshis = _tx[Object.keys(_tx)[0]];
-
-        if (!_constants.psInputSatoshis.includes(outputSatoshis)) {
-          isPrivateSend = false;
-          break;
-        }
-      }
-
+      var isMixing = App.isPrivateSend(data.vout);
       var tx = {
-        "private": isPrivateSend,
+        mixing: isMixing,
         instant: data.txlock,
         value: data.valueOut,
         x: parseInt(data.txid.slice(0, 4), 16) / 65536,
         y: parseInt(data.txid.slice(4, 8), 16) / 65536,
         rotation: parseInt(data.txid.slice(16, 17), 16) / 16,
         paintIndex: parseInt(data.txid.slice(17, 21), 16) / 65536,
-        color: isPrivateSend ? _constants.COLORS["private"] : data.txlock ? _constants.COLORS.instant : this.blockColors[Math.floor(parseInt(data.txid.slice(21, 23), 16) / 256 * this.blockColors.length)]
+        color: isMixing ? _constants.COLORS["private"] : data.txlock ? _constants.COLORS.instant : this.blockColors[Math.floor(parseInt(data.txid.slice(21, 23), 16) / 256 * this.blockColors.length)]
       };
       console.log('tx: ' + tx.value + (tx["private"] ? ' private' : '') + (tx.instant ? ' instant' : ''));
       var paint = document.createElement('div');
@@ -18968,6 +18955,13 @@ function () {
       console.log('New color scheme: ' + scheme + ' based on %chue ' + hue, 'background-color:#' + colors[0]);
       return colors;
     }
+  }, {
+    key: "isPrivateSend",
+    value: function isPrivateSend(components) {
+      return components.every(function (i) {
+        return _constants.PSDENOMINATIONS.includes(Object.values(i)[0]);
+      });
+    }
   }]);
 
   return App;
@@ -18983,9 +18977,9 @@ require.register("constants.js", function(exports, require, module) {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.PAINT = exports.COLORS = exports.psInputSatoshis = void 0;
-var psInputSatoshis = [1000010000, 100001000, 10000100, 1000010, 100001];
-exports.psInputSatoshis = psInputSatoshis;
+exports.PAINT = exports.COLORS = exports.PSDENOMINATIONS = void 0;
+var PSDENOMINATIONS = [1000010000, 100001000, 10000100, 1000010, 100001];
+exports.PSDENOMINATIONS = PSDENOMINATIONS;
 var COLORS = {
   "private": '000000',
   instant: 'ffffff'
