@@ -34,7 +34,17 @@ a {
   margin-left: 80vw;
   padding-top: 2.5vw;
 }
-.block:first-child {
+#hero, .block {
+  width: 15vw;
+  height: 15vw;
+  -webkit-box-shadow: 0.1em 0.1em 1em hsla(0, 0%, 0%, 0.5);
+          box-shadow: 0.1em 0.1em 1em hsla(0, 0%, 0%, 0.5);
+  background-color: #dad7b7;
+  margin: 0 auto 1em;
+  position: relative;
+  overflow: hidden;
+}
+#hero {
   position: absolute;
   left: 41.125%;
   top: 50%;
@@ -45,25 +55,15 @@ a {
           transform: translate(-50%,-50%);
 }
 @media (max-height: 82.5vw) {
-  .block:first-child {
+  #hero {
     width: calc(100vh - 5vw);
     height: calc(100vh - 5vw);
   }
 }
-.block.solo {
+#hero.solo {
   left: 50%;
   width: 95vmin;
   height: 95vmin;
-}
-.block {
-  width: 15vw;
-  height: 15vw;
-  -webkit-box-shadow: 0.1em 0.1em 1em hsla(0, 0%, 0%, 0.5);
-          box-shadow: 0.1em 0.1em 1em hsla(0, 0%, 0%, 0.5);
-  background-color: #dad7b7;
-  margin: 0 auto 1em;
-  position: relative;
-  overflow: hidden;
 }
 .explorer-link {
   display: none;

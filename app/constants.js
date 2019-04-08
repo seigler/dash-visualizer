@@ -7,8 +7,8 @@ export const PSDENOMINATIONS = [
 ];
 
 export const COLORS = {
-    private: '000000',
-    instant: 'ffffff'
+    black: '#000000',
+    white: '#ffffff'
 };
 
 export const PAINT = {
