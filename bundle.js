@@ -19007,7 +19007,7 @@ function () {
       var isMixing = App.isPrivateSend(data.vout);
       var tx = {
         mixing: isMixing,
-        instant: data.txlock,
+        instant: data.txlock || data.vin && data.vin.length <= 4,
         value: data.valueOut,
         x: parseInt(data.txid.slice(0, 4), 16) / 65536,
         y: parseInt(data.txid.slice(4, 8), 16) / 65536,
