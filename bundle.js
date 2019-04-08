@@ -19108,13 +19108,6 @@ function () {
         paint.style.setProperty('--size', Math.log(1 + tx.value) / Math.log(2));
         paint.style.setProperty('--rotation', tx.rotation * 360 + 'deg');
         paint.style.setProperty('--color', tx.color);
-
-        if (addToMempool && _this3.mempoolRefs.unshift(paint) > 200) {
-          var toDelete = _this3.mempoolRefs.pop();
-
-          toDelete.remove();
-        }
-
         target.appendChild(paint);
       };
     }
