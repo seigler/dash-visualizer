@@ -19048,7 +19048,7 @@ function () {
         var value = Object.values(i)[0];
 
         if (typeof value == 'string') {
-          value *= 100000000;
+          value = 100000000 * value;
         }
 
         return _constants.PSDENOMINATIONS.includes(value);
