@@ -19094,7 +19094,6 @@ function () {
           paintIndex: parseInt(data.txid.slice(17, 21), 16) / 65536,
           color: isMixing ? _constants.COLORS.black : !isSimple ? _constants.COLORS.white : 'var(--color-' + Math.floor(parseInt(data.txid.slice(21, 23), 16) / 256 * _this3.blockColors.length) + ')'
         };
-        console.log('tx: ' + tx.value + (tx.mixing ? ' mixing' : '') + (isInstant ? ' instant' : ''));
         var paint = document.createElement('div');
         paint.id = tx.id;
         paint.classList.add('paint');
