@@ -19020,6 +19020,7 @@ function () {
       completedBlock.id = data;
       this.applyColors(completedBlock);
       this.blockColors = App.generateColors(data);
+      this.applyColors(this.hero);
       var blockLink = document.createElement('a');
       blockLink.className = 'explorer-link';
       blockLink.href = document.location + '?block=' + data;
@@ -19069,8 +19070,6 @@ function () {
         }
 
         _this2.blockList.insertBefore(completedBlock, _this2.blockList.firstChild);
-
-        _this2.applyColors(_this2.hero);
       });
     }
   }, {
