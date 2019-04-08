@@ -19014,8 +19014,8 @@ function () {
         rotation: parseInt(data.txid.slice(16, 17), 16) / 16,
         paintIndex: parseInt(data.txid.slice(17, 21), 16) / 65536,
         color: isMixing ? _constants.COLORS["private"] : data.txlock ? _constants.COLORS.instant : this.blockColors[Math.floor(parseInt(data.txid.slice(21, 23), 16) / 256 * this.blockColors.length)]
-      }; // console.log('tx: '+tx.value+(tx.private?' private':'')+(tx.instant?' instant':''));
-
+      };
+      console.log('tx: ' + tx.value + (tx["private"] ? ' private' : '') + (tx.instant ? ' instant' : ''));
       var paint = document.createElement('div');
       paint.classList.add('paint');
       paint.style.maskImage = 'url(assets/paint/' + (tx.value > 10 ? _constants.PAINT.big[Math.floor(tx.paintIndex * 12)] : _constants.PAINT.small[Math.floor(tx.paintIndex * 11)]) + ')';
@@ -19037,8 +19037,8 @@ function () {
       var scheme = schemeTypes[Math.floor(schemeFraction * schemeTypes.length)];
       var blockColorScheme = new _colorScheme["default"]();
       blockColorScheme.from_hue(hue).scheme(scheme).add_complement(true);
-      var colors = blockColorScheme.colors(); // console.log('New color scheme: ' + scheme + ' based on %chue ' + hue, 'background-color:#'+colors[0]);
-
+      var colors = blockColorScheme.colors();
+      console.log('New color scheme: ' + scheme + ' based on %chue ' + hue, 'background-color:#' + colors[0]);
       return colors;
     }
   }, {
@@ -19048,7 +19048,7 @@ function () {
         var value = Object.values(i)[0];
 
         if (typeof value == 'string') {
-          value *= 10000000;
+          value *= 100000000;
         }
 
         return _constants.PSDENOMINATIONS.includes(value);
