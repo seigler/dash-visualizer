@@ -52,25 +52,25 @@ export default class App {
       }
       this.connectionStatus.className = 'is-loaded';
     } else { // live display
-      this.socket = io.connect("https://insight.dash.org:443/");
-      fetch('https://insight.dash.org/api/status?q=getLastBlockHash')
+      await fetch('https://insight.dash.org/api/status?q=getLastBlockHash')
       .then(resp => resp.json())
       .then(data => {
         this.blockColors = App.generateColors(data.lastblockhash);
+      });
 
-        this.socket.on('connect', () => {
-          this.connectionStatus.className = 'is-connected';
-          // Join the room.
-          this.socket.emit('subscribe', 'inv');
-        })
-        this.socket.on('tx', this.onTransaction.bind(this));
-        this.socket.on('block', this.onBlock.bind(this));
-        this.socket.on('disconnect', () => {
-          this.connectionStatus.className = 'is-disconnected';
-        });
-        this.socket.on('reconnecting', () => {
-          this.connectionStatus.className = 'is-connecting';
-        });
+      this.socket = io.connect("https://insight.dash.org:443/");
+      this.socket.on('connect', () => {
+        this.connectionStatus.className = 'is-connected';
+        // Join the room.
+        this.socket.emit('subscribe', 'inv');
+      })
+      this.socket.on('tx', this.onTransaction.bind(this));
+      this.socket.on('block', this.onBlock.bind(this));
+      this.socket.on('disconnect', () => {
+        this.connectionStatus.className = 'is-disconnected';
+      });
+      this.socket.on('reconnecting', () => {
+        this.connectionStatus.className = 'is-connecting';
       });
     }
   }
@@ -96,7 +96,7 @@ export default class App {
     var blockColorScheme = new ColorScheme();
     blockColorScheme.from_hue(hue).scheme(scheme).add_complement(true);
     const colors = blockColorScheme.colors();
-    // console.log('New color scheme: ' + scheme + ' based on %chue ' + hue, 'background-color:#'+colors[0]);
+    console.log('New color scheme: ' + scheme + ' based on %chue ' + hue, 'background-color:#'+colors[0]);
     return colors;
   }
 
@@ -123,7 +123,13 @@ export default class App {
   }
 
   static isPrivateSend(components) {
-    return components.every(i => PSDENOMINATIONS.includes(Object.values(i)[0]));
+    return components.every(i => {
+      let value = Object.values(i)[0];
+      if (typeof value == 'string') {
+        value *= 100000000;
+      }
+      return PSDENOMINATIONS.includes(value);
+    });
   }
 
   onTransaction(data) {
@@ -141,7 +147,7 @@ export default class App {
       ]
     };
 
-    // console.log('tx: '+tx.value+(tx.private?' private':'')+(tx.instant?' instant':''));
+    console.log('tx: '+tx.value+(tx.private?' private':'')+(tx.instant?' instant':''));
 
     var paint = document.createElement('div');
     paint.classList.add('paint');
