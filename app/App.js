@@ -13,6 +13,8 @@ export default class App {
   async init() {
     this.domRefList = [];
     this.blockList = document.getElementById('blockList');
+    this.blockList.style.setProperty('--private-color', COLORS.private);
+    this.blockList.style.setProperty('--instant-color', COLORS.instant);
     this.connectionStatus = document.getElementById('connectionStatus')
     this.currentBlock = document.createElement('div');
     this.currentBlock.className = 'block';
@@ -112,8 +114,6 @@ export default class App {
 
     this.currentBlock = document.createElement('div');
     this.currentBlock.className = 'block';
-    this.currentBlock.style.setProperty('--private-color', COLORS.private);
-    this.currentBlock.style.setProperty('--instant-color', COLORS.instant);
 
     if (this.domRefList.unshift(this.currentBlock) > 16) {
       var toDelete = this.domRefList.pop();
@@ -126,7 +126,7 @@ export default class App {
     return components.every(i => {
       let value = Object.values(i)[0];
       if (typeof value == 'string') {
-        value *= 100000000;
+        value = 100000000 * value;
       }
       return PSDENOMINATIONS.includes(value);
     });
@@ -134,20 +134,21 @@ export default class App {
 
   onTransaction(data) {
     const isMixing = App.isPrivateSend(data.vout);
+    const isInstant = data.txlock || (data.vin && data.vin.length <= 4);
     const tx = {
       mixing: isMixing,
-      instant: data.txlock,
+      instant: isInstant,
       value: data.valueOut,
       x: parseInt(data.txid.slice(0, 4), 16) / 65536,
       y: parseInt(data.txid.slice(4, 8), 16) / 65536,
       rotation: parseInt(data.txid.slice(16, 17), 16) / 16,
       paintIndex: parseInt(data.txid.slice(17, 21), 16) / 65536,
-      color: isMixing ? COLORS.private : data.txlock ? COLORS.instant : this.blockColors[
+      color: isMixing ? COLORS.private : isInstant ? COLORS.instant : this.blockColors[
         Math.floor(parseInt(data.txid.slice(21, 23), 16) / 256 * this.blockColors.length)
       ]
     };
 
-    console.log('tx: '+tx.value+(tx.private?' private':'')+(tx.instant?' instant':''));
+    console.log('tx: '+tx.value+(tx.mixing?' mixing':'')+(tx.instant?' instant':''));
 
     var paint = document.createElement('div');
     paint.classList.add('paint');
