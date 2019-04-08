@@ -19069,6 +19069,8 @@ function () {
         }
 
         _this2.blockList.insertBefore(completedBlock, _this2.blockList.firstChild);
+
+        _this2.applyColors(_this2.hero);
       });
     }
   }, {
