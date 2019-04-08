@@ -18880,6 +18880,8 @@ function () {
               case 0:
                 this.domRefList = [];
                 this.blockList = document.getElementById('blockList');
+                this.blockList.style.setProperty('--private-color', _constants.COLORS["private"]);
+                this.blockList.style.setProperty('--instant-color', _constants.COLORS.instant);
                 this.connectionStatus = document.getElementById('connectionStatus');
                 this.currentBlock = document.createElement('div');
                 this.currentBlock.className = 'block';
@@ -18888,7 +18890,7 @@ function () {
                 block = new URL(window.location).searchParams.get('block');
 
                 if (!(block != null)) {
-                  _context.next = 24;
+                  _context.next = 26;
                   break;
                 }
 
@@ -18900,13 +18902,13 @@ function () {
                 prevHash = null;
                 i = 0;
 
-              case 15:
+              case 17:
                 if (!(i < pages)) {
-                  _context.next = 21;
+                  _context.next = 23;
                   break;
                 }
 
-                _context.next = 18;
+                _context.next = 20;
                 return fetch("https://insight.dash.org/insight-api/txs?block=".concat(block, "&pageNum=").concat(i)).then(function (resp) {
                   return resp.json();
                 }).then(function (thisBlockData) {
@@ -18930,25 +18932,25 @@ function () {
                   }
                 });
 
-              case 18:
+              case 20:
                 ++i;
-                _context.next = 15;
+                _context.next = 17;
                 break;
 
-              case 21:
+              case 23:
                 this.connectionStatus.className = 'is-loaded';
-                _context.next = 32;
+                _context.next = 34;
                 break;
 
-              case 24:
-                _context.next = 26;
+              case 26:
+                _context.next = 28;
                 return fetch('https://insight.dash.org/api/status?q=getLastBlockHash').then(function (resp) {
                   return resp.json();
                 }).then(function (data) {
                   _this.blockColors = App.generateColors(data.lastblockhash);
                 });
 
-              case 26:
+              case 28:
                 this.socket = _socket["default"].connect("https://insight.dash.org:443/");
                 this.socket.on('connect', function () {
                   _this.connectionStatus.className = 'is-connected'; // Join the room.
@@ -18964,7 +18966,7 @@ function () {
                   _this.connectionStatus.className = 'is-connecting';
                 });
 
-              case 32:
+              case 34:
               case "end":
                 return _context.stop();
             }
@@ -18991,8 +18993,6 @@ function () {
       this.currentBlock.appendChild(blockLink);
       this.currentBlock = document.createElement('div');
       this.currentBlock.className = 'block';
-      this.currentBlock.style.setProperty('--private-color', _constants.COLORS["private"]);
-      this.currentBlock.style.setProperty('--instant-color', _constants.COLORS.instant);
 
       if (this.domRefList.unshift(this.currentBlock) > 16) {
         var toDelete = this.domRefList.pop();
@@ -19005,17 +19005,18 @@ function () {
     key: "onTransaction",
     value: function onTransaction(data) {
       var isMixing = App.isPrivateSend(data.vout);
+      var isInstant = data.txlock || data.vin && data.vin.length <= 4;
       var tx = {
         mixing: isMixing,
-        instant: data.txlock || data.vin && data.vin.length <= 4,
+        instant: isInstant,
         value: data.valueOut,
         x: parseInt(data.txid.slice(0, 4), 16) / 65536,
         y: parseInt(data.txid.slice(4, 8), 16) / 65536,
         rotation: parseInt(data.txid.slice(16, 17), 16) / 16,
         paintIndex: parseInt(data.txid.slice(17, 21), 16) / 65536,
-        color: isMixing ? _constants.COLORS["private"] : data.txlock ? _constants.COLORS.instant : this.blockColors[Math.floor(parseInt(data.txid.slice(21, 23), 16) / 256 * this.blockColors.length)]
+        color: isMixing ? _constants.COLORS["private"] : isInstant ? _constants.COLORS.instant : this.blockColors[Math.floor(parseInt(data.txid.slice(21, 23), 16) / 256 * this.blockColors.length)]
       };
-      console.log('tx: ' + tx.value + (tx["private"] ? ' private' : '') + (tx.instant ? ' instant' : ''));
+      console.log('tx: ' + tx.value + (tx.mixing ? ' mixing' : '') + (tx.instant ? ' instant' : ''));
       var paint = document.createElement('div');
       paint.classList.add('paint');
       paint.style.maskImage = 'url(assets/paint/' + (tx.value > 10 ? _constants.PAINT.big[Math.floor(tx.paintIndex * 12)] : _constants.PAINT.small[Math.floor(tx.paintIndex * 11)]) + ')';
