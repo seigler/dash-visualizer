@@ -19053,7 +19053,9 @@ function () {
 
         _this2.mempoolRefs.filter(function (item) {
           if (item.data_ignored > 4) {
-            _this2.hero.removeChild(item);
+            try {
+              _this2.hero.removeChild(item);
+            } catch (err) {}
 
             return false;
           }
