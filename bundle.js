@@ -19048,7 +19048,13 @@ function () {
     key: "isPrivateSend",
     value: function isPrivateSend(components) {
       return components.every(function (i) {
-        return _constants.PSDENOMINATIONS.includes(Object.values(i)[0]);
+        var value = Object.values(i)[0];
+
+        if (typeof value == 'string') {
+          value *= 10000000;
+        }
+
+        return _constants.PSDENOMINATIONS.includes(value);
       });
     }
   }]);
