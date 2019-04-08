@@ -8,35 +8,71 @@ import { PSDENOMINATIONS, COLORS, PAINT } from './constants';
 
 export default class App {
   constructor() {
-    this.socket = io.connect("https://insight.dash.org:443/");
+  }
+
+  async init() {
     this.domRefList = [];
     this.blockList = document.getElementById('blockList');
+    this.connectionStatus = document.getElementById('connectionStatus')
     this.currentBlock = document.createElement('div');
     this.currentBlock.className = 'block';
     this.blockList.appendChild(this.currentBlock);
     this.blockColors = ['000000'];
-    this.prevBlockHash = null;
 
-    fetch('https://insight.dash.org/api/status?q=getLastBlockHash')
-    .then(resp => resp.json())
-    .then(data => {
-      this.prevBlockHash = data.lastblockhash;
-      this.blockColors = App.generateColors(data.lastblockhash);
-    });
+    const block = (new URL(window.location)).searchParams.get('block');
 
-    this.socket.on('connect', () => {
-      document.getElementById('connectionStatus').className = 'is-connected';
-      // Join the room.
-      this.socket.emit('subscribe', 'inv');
-    })
-    this.socket.on('tx', this.onTransaction.bind(this));
-    this.socket.on('block', this.onBlock.bind(this));
-    this.socket.on('disconnect', () => {
-      document.getElementById('connectionStatus').className = 'is-disconnected';
-    });
-    this.socket.on('reconnecting', () => {
-      document.getElementById('connectionStatus').className = 'is-connecting';
-    });
+    if (block != null) { // display one block
+      this.currentBlock.classList.add('solo');
+      this.connectionStatus.className = 'is-loading';
+      var txs = [];
+      var pages = 1;
+      var prevHash = null;
+      for (let i = 0; i < pages; ++i) {
+        await fetch(`https://insight.dash.org/insight-api/txs?block=${block}&pageNum=${i}`)
+        .then(resp => resp.json())
+        .then(thisBlockData => {
+          // console.log({i, pages, prevHash, thisBlockData});
+          if (!prevHash && thisBlockData.txs.length > 0) {
+            return fetch('https://insight.dash.org/insight-api/block-index/'+(thisBlockData.txs[0].blockheight - 1))
+            .then(resp => resp.json())
+            .then(prevBlockData => {
+              prevHash = prevBlockData.blockHash;
+              this.blockColors = App.generateColors(prevHash);
+              pages = thisBlockData.pagesTotal;
+              for (let j = 0; j < thisBlockData.txs.length; ++j) {
+                this.onTransaction(thisBlockData.txs[j]);
+              }
+            });
+          } else {
+              for (let j = 0; j < thisBlockData.txs.length; ++j) {
+                this.onTransaction(thisBlockData.txs[j]);
+              }
+          }
+        });
+      }
+      this.connectionStatus.className = 'is-loaded';
+    } else { // live display
+      this.socket = io.connect("https://insight.dash.org:443/");
+      fetch('https://insight.dash.org/api/status?q=getLastBlockHash')
+      .then(resp => resp.json())
+      .then(data => {
+        this.blockColors = App.generateColors(data.lastblockhash);
+
+        this.socket.on('connect', () => {
+          this.connectionStatus.className = 'is-connected';
+          // Join the room.
+          this.socket.emit('subscribe', 'inv');
+        })
+        this.socket.on('tx', this.onTransaction.bind(this));
+        this.socket.on('block', this.onBlock.bind(this));
+        this.socket.on('disconnect', () => {
+          this.connectionStatus.className = 'is-disconnected';
+        });
+        this.socket.on('reconnecting', () => {
+          this.connectionStatus.className = 'is-connecting';
+        });
+      });
+    }
   }
 
   static generateColors(blockHash) {
@@ -60,19 +96,18 @@ export default class App {
     var blockColorScheme = new ColorScheme();
     blockColorScheme.from_hue(hue).scheme(scheme).add_complement(true);
     const colors = blockColorScheme.colors();
-    console.log('New color scheme: ' + scheme + ' based on %chue ' + hue, 'background-color:#'+colors[0]);
+    // console.log('New color scheme: ' + scheme + ' based on %chue ' + hue, 'background-color:#'+colors[0]);
     return colors;
   }
 
   onBlock(data) {
-    this.prevBlockHash = data;
-    this.blockColors = App.generateColors(this.prevBlockHash);
+    this.blockColors = App.generateColors(data);
     var blockLink = document.createElement('a');
     blockLink.className = 'explorer-link';
-    blockLink.href = 'https://insight.dash.org/insight/block/' + data;
+    blockLink.href = document.location + '?block=' + data;
     blockLink.target = '_blank';
     blockLink.setAttribute('rel', 'noopener');
-    blockLink.appendChild(document.createTextNode(data));
+    blockLink.appendChild(document.createTextNode('🗗'));
     this.currentBlock.appendChild(blockLink);
 
     this.currentBlock = document.createElement('div');
@@ -106,7 +141,7 @@ export default class App {
       ]
     };
 
-    console.log('tx: '+tx.value+(tx.private?' private':'')+(tx.instant?' instant':''));
+    // console.log('tx: '+tx.value+(tx.private?' private':'')+(tx.instant?' instant':''));
 
     var paint = document.createElement('div');
     paint.classList.add('paint');
