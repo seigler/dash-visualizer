@@ -18863,6 +18863,13 @@ var App =
 function () {
   function App() {
     _classCallCheck(this, App);
+
+    this.blockRefs = [];
+    this.mempoolRefs = [];
+    this.blockList = document.getElementById('blockList');
+    this.connectionStatus = document.getElementById('connectionStatus');
+    this.hero = document.getElementById('hero');
+    this.blockColors = ['000000'];
   }
 
   _createClass(App, [{
@@ -18870,94 +18877,109 @@ function () {
     value: function () {
       var _init = _asyncToGenerator(
       /*#__PURE__*/
-      regeneratorRuntime.mark(function _callee() {
+      regeneratorRuntime.mark(function _callee2() {
         var _this = this;
 
-        var block, txs, pages, prevHash, i;
-        return regeneratorRuntime.wrap(function _callee$(_context) {
+        var block, txs, pages, prevHash;
+        return regeneratorRuntime.wrap(function _callee2$(_context2) {
           while (1) {
-            switch (_context.prev = _context.next) {
+            switch (_context2.prev = _context2.next) {
               case 0:
-                this.domRefList = [];
-                this.blockList = document.getElementById('blockList');
-                this.blockList.style.setProperty('--private-color', _constants.COLORS["private"]);
-                this.blockList.style.setProperty('--instant-color', _constants.COLORS.instant);
-                this.connectionStatus = document.getElementById('connectionStatus');
-                this.currentBlock = document.createElement('div');
-                this.currentBlock.className = 'block';
-                this.blockList.appendChild(this.currentBlock);
-                this.blockColors = ['000000'];
                 block = new URL(window.location).searchParams.get('block');
 
                 if (!(block != null)) {
-                  _context.next = 26;
+                  _context2.next = 5;
                   break;
                 }
 
-                // display one block
-                this.currentBlock.classList.add('solo');
-                this.connectionStatus.className = 'is-loading';
-                txs = [];
-                pages = 1;
-                prevHash = null;
-                i = 0;
+                return _context2.delegateYield(
+                /*#__PURE__*/
+                regeneratorRuntime.mark(function _callee() {
+                  var txListener, i;
+                  return regeneratorRuntime.wrap(function _callee$(_context) {
+                    while (1) {
+                      switch (_context.prev = _context.next) {
+                        case 0:
+                          // display one block
+                          _this.hero.classList.add('solo');
 
-              case 17:
-                if (!(i < pages)) {
-                  _context.next = 23;
-                  break;
-                }
+                          _this.connectionStatus.className = 'is-loading';
+                          txs = [];
+                          pages = 1;
+                          prevHash = null;
+                          txListener = _this.onTransactionBuilder(_this.hero, false);
+                          i = 0;
 
-                _context.next = 20;
-                return fetch("https://insight.dash.org/insight-api/txs?block=".concat(block, "&pageNum=").concat(i)).then(function (resp) {
-                  return resp.json();
-                }).then(function (thisBlockData) {
-                  // console.log({i, pages, prevHash, thisBlockData});
-                  if (!prevHash && thisBlockData.txs.length > 0) {
-                    return fetch('https://insight.dash.org/insight-api/block-index/' + (thisBlockData.txs[0].blockheight - 1)).then(function (resp) {
-                      return resp.json();
-                    }).then(function (prevBlockData) {
-                      prevHash = prevBlockData.blockHash;
-                      _this.blockColors = App.generateColors(prevHash);
-                      pages = thisBlockData.pagesTotal;
+                        case 7:
+                          if (!(i < pages)) {
+                            _context.next = 13;
+                            break;
+                          }
 
-                      for (var j = 0; j < thisBlockData.txs.length; ++j) {
-                        _this.onTransaction(thisBlockData.txs[j]);
+                          _context.next = 10;
+                          return fetch("https://insight.dash.org/insight-api/txs?block=".concat(block, "&pageNum=").concat(i)).then(function (resp) {
+                            return resp.json();
+                          }).then(function (thisBlockData) {
+                            if (!prevHash && thisBlockData.txs.length > 0) {
+                              return fetch('https://insight.dash.org/insight-api/block-index/' + (thisBlockData.txs[0].blockheight - 1)).then(function (resp) {
+                                return resp.json();
+                              }).then(function (prevBlockData) {
+                                prevHash = prevBlockData.blockHash;
+                                _this.blockColors = App.generateColors(prevHash);
+
+                                _this.applyColors(_this.hero);
+
+                                pages = thisBlockData.pagesTotal;
+
+                                for (var j = 0; j < thisBlockData.txs.length; ++j) {
+                                  txListener(thisBlockData.txs[j]);
+                                }
+                              });
+                            } else {
+                              for (var j = 0; j < thisBlockData.txs.length; ++j) {
+                                txListener(thisBlockData.txs[j]);
+                              }
+                            }
+                          });
+
+                        case 10:
+                          ++i;
+                          _context.next = 7;
+                          break;
+
+                        case 13:
+                          _this.connectionStatus.className = 'is-loaded';
+
+                        case 14:
+                        case "end":
+                          return _context.stop();
                       }
-                    });
-                  } else {
-                    for (var j = 0; j < thisBlockData.txs.length; ++j) {
-                      _this.onTransaction(thisBlockData.txs[j]);
                     }
-                  }
-                });
+                  }, _callee);
+                })(), "t0", 3);
 
-              case 20:
-                ++i;
-                _context.next = 17;
+              case 3:
+                _context2.next = 13;
                 break;
 
-              case 23:
-                this.connectionStatus.className = 'is-loaded';
-                _context.next = 34;
-                break;
-
-              case 26:
-                _context.next = 28;
+              case 5:
+                _context2.next = 7;
                 return fetch('https://insight.dash.org/api/status?q=getLastBlockHash').then(function (resp) {
                   return resp.json();
                 }).then(function (data) {
                   _this.blockColors = App.generateColors(data.lastblockhash);
+
+                  _this.applyColors(_this.hero);
                 });
 
-              case 28:
+              case 7:
                 this.socket = _socket["default"].connect("https://insight.dash.org:443/");
                 this.socket.on('connect', function () {
                   _this.connectionStatus.className = 'is-connected'; // Join the room.
 
                   _this.socket.emit('subscribe', 'inv');
                 });
-                this.socket.on('tx', this.onTransaction.bind(this));
+                this.socket.on('tx', this.onTransactionBuilder(this.hero, true).bind(this));
                 this.socket.on('block', this.onBlock.bind(this));
                 this.socket.on('disconnect', function () {
                   _this.connectionStatus.className = 'is-disconnected';
@@ -18966,12 +18988,12 @@ function () {
                   _this.connectionStatus.className = 'is-connecting';
                 });
 
-              case 34:
+              case 13:
               case "end":
-                return _context.stop();
+                return _context2.stop();
             }
           }
-        }, _callee, this);
+        }, _callee2, this);
       }));
 
       function init() {
@@ -18981,8 +19003,22 @@ function () {
       return init;
     }()
   }, {
+    key: "applyColors",
+    value: function applyColors(target) {
+      for (var i in this.blockColors) {
+        var color = this.blockColors[i];
+        target.style.setProperty("--color-".concat(i), '#' + color);
+      }
+    }
+  }, {
     key: "onBlock",
     value: function onBlock(data) {
+      var _this2 = this;
+
+      var completedBlock = document.createElement('div');
+      completedBlock.className = 'block';
+      completedBlock.id = data;
+      this.applyColors(completedBlock);
       this.blockColors = App.generateColors(data);
       var blockLink = document.createElement('a');
       blockLink.className = 'explorer-link';
@@ -18990,56 +19026,101 @@ function () {
       blockLink.target = '_blank';
       blockLink.setAttribute('rel', 'noopener');
       blockLink.appendChild(document.createTextNode('🗗'));
-      this.currentBlock.appendChild(blockLink);
-      this.currentBlock = document.createElement('div');
-      this.currentBlock.className = 'block';
+      fetch('https://insight.dash.org/insight-api/block/' + data).then(function (resp) {
+        return resp.json();
+      }).then(function (data) {
+        var mined = [];
 
-      if (this.domRefList.unshift(this.currentBlock) > 16) {
-        var toDelete = this.domRefList.pop();
-        toDelete.remove();
-      }
+        for (var i in data.tx) {
+          var txid = data.tx[i];
+          var paint = document.getElementById(txid);
 
-      this.blockList.insertBefore(this.currentBlock, this.blockList.firstChild);
+          if (paint) {
+            mined.push(paint);
+            completedBlock.insertBefore(paint, completedBlock.firstChild);
+          }
+        }
+
+        _this2.mempoolRefs = _this2.mempoolRefs.filter(function (item) {
+          return !mined.includes(item);
+        });
+
+        _this2.mempoolRefs.forEach(function (item) {
+          item.classList.add('stale');
+          item.data_ignored = item.data_ignored ? item.data_ignored + 1 : 1;
+        });
+
+        _this2.mempoolRefs.filter(function (item) {
+          if (item.data_ignored > 4) {
+            _this2.hero.removeChild(item);
+
+            return false;
+          }
+
+          return true;
+        });
+
+        completedBlock.appendChild(blockLink);
+
+        if (_this2.blockRefs.unshift(_this2.completedBlock) > 8) {
+          var toDelete = _this2.blockRefs.pop();
+
+          toDelete.remove();
+        }
+
+        _this2.blockList.insertBefore(completedBlock, _this2.blockList.firstChild);
+      });
     }
   }, {
-    key: "onTransaction",
-    value: function onTransaction(data) {
-      var isMixing = App.isPrivateSend(data.vout);
-      var isInstant = data.txlock || data.vin && data.vin.length <= 4;
-      var tx = {
-        mixing: isMixing,
-        instant: isInstant,
-        value: data.valueOut,
-        x: parseInt(data.txid.slice(0, 4), 16) / 65536,
-        y: parseInt(data.txid.slice(4, 8), 16) / 65536,
-        rotation: parseInt(data.txid.slice(16, 17), 16) / 16,
-        paintIndex: parseInt(data.txid.slice(17, 21), 16) / 65536,
-        color: isMixing ? _constants.COLORS["private"] : isInstant ? _constants.COLORS.instant : this.blockColors[Math.floor(parseInt(data.txid.slice(21, 23), 16) / 256 * this.blockColors.length)]
+    key: "onTransactionBuilder",
+    value: function onTransactionBuilder(target) {
+      var _this3 = this;
+
+      var addToMempool = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+      return function (data) {
+        var isMixing = App.isPrivateSend(data.vout);
+        var isInstant = data.txlock || data.vin && data.vin.length <= 4;
+        var isSimple = data.txlock || data.vin && data.vin.length <= 1;
+        var tx = {
+          id: data.txid,
+          mixing: isMixing,
+          instant: isInstant,
+          simple: isSimple,
+          value: data.valueOut,
+          x: parseInt(data.txid.slice(0, 4), 16) / 65536,
+          y: parseInt(data.txid.slice(4, 8), 16) / 65536,
+          rotation: parseInt(data.txid.slice(16, 17), 16) / 16,
+          paintIndex: parseInt(data.txid.slice(17, 21), 16) / 65536,
+          color: isMixing ? _constants.COLORS.black : !isSimple ? _constants.COLORS.white : 'var(--color-' + Math.floor(parseInt(data.txid.slice(21, 23), 16) / 256 * _this3.blockColors.length) + ')'
+        };
+        console.log('tx: ' + tx.value + (tx.mixing ? ' mixing' : '') + (isInstant ? ' instant' : ''));
+        var paint = document.createElement('div');
+        paint.id = tx.id;
+        paint.classList.add('paint');
+        paint.style.maskImage = 'url(assets/paint/' + (tx.value > 10 ? _constants.PAINT.big[Math.floor(tx.paintIndex * 12)] : _constants.PAINT.small[Math.floor(tx.paintIndex * 11)]) + ')';
+        paint.style.setProperty('-webkit-mask-image', paint.style.maskImage);
+        paint.style.setProperty('--x', tx.x);
+        paint.style.setProperty('--y', tx.y);
+        paint.style.setProperty('--size', Math.log(1 + tx.value) / Math.log(2));
+        paint.style.setProperty('--rotation', tx.rotation * 360 + 'deg');
+        paint.style.setProperty('--color', tx.color);
+
+        if (addToMempool && _this3.mempoolRefs.unshift(paint) > 200) {
+          var toDelete = _this3.mempoolRefs.pop();
+
+          toDelete.remove();
+        }
+
+        target.appendChild(paint);
       };
-      console.log('tx: ' + tx.value + (tx.mixing ? ' mixing' : '') + (tx.instant ? ' instant' : ''));
-      var paint = document.createElement('div');
-      paint.classList.add('paint');
-      paint.style.maskImage = 'url(assets/paint/' + (tx.value > 10 ? _constants.PAINT.big[Math.floor(tx.paintIndex * 12)] : _constants.PAINT.small[Math.floor(tx.paintIndex * 11)]) + ')';
-      paint.style.setProperty('-webkit-mask-image', paint.style.maskImage);
-      paint.style.setProperty('--x', tx.x);
-      paint.style.setProperty('--y', tx.y);
-      paint.style.setProperty('--size', Math.log(1 + tx.value) / Math.log(2));
-      paint.style.setProperty('--rotation', tx.rotation * 360 + 'deg');
-      paint.style.setProperty('--color', '#' + tx.color);
-      this.currentBlock.appendChild(paint, this.currentBlock.firstChild);
     }
   }], [{
     key: "generateColors",
     value: function generateColors(blockHash) {
-      // https://github.com/c0bra/color-scheme-js
-      var schemeTypes = ['contrast', 'triade', 'triade', 'tetrade', 'tetrade', 'analogic', 'analogic', 'analogic', 'analogic'];
       var hue = Math.floor(parseInt(blockHash.slice(-3), 16) / 4096 * 360);
-      var schemeFraction = parseInt(blockHash.slice(-5, -3), 16) / 256;
-      var scheme = schemeTypes[Math.floor(schemeFraction * schemeTypes.length)];
       var blockColorScheme = new _colorScheme["default"]();
-      blockColorScheme.from_hue(hue).scheme(scheme).add_complement(true);
+      blockColorScheme.from_hue(hue).scheme('analogic').add_complement(true);
       var colors = blockColorScheme.colors();
-      console.log('New color scheme: ' + scheme + ' based on %chue ' + hue, 'background-color:#' + colors[0]);
       return colors;
     }
   }, {
@@ -19074,8 +19155,8 @@ exports.PAINT = exports.COLORS = exports.PSDENOMINATIONS = void 0;
 var PSDENOMINATIONS = [1000010000, 100001000, 10000100, 1000010, 100001];
 exports.PSDENOMINATIONS = PSDENOMINATIONS;
 var COLORS = {
-  "private": '000000',
-  instant: 'ffffff'
+  black: '#000000',
+  white: '#ffffff'
 };
 exports.COLORS = COLORS;
 var PAINT = {
