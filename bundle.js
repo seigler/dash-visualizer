@@ -18937,37 +18937,34 @@ function () {
 
               case 21:
                 this.connectionStatus.className = 'is-loaded';
-                _context.next = 26;
+                _context.next = 32;
                 break;
 
               case 24:
-                // live display
-                this.socket = _socket["default"].connect("https://insight.dash.org:443/");
-                fetch('https://insight.dash.org/api/status?q=getLastBlockHash').then(function (resp) {
+                _context.next = 26;
+                return fetch('https://insight.dash.org/api/status?q=getLastBlockHash').then(function (resp) {
                   return resp.json();
                 }).then(function (data) {
                   _this.blockColors = App.generateColors(data.lastblockhash);
-
-                  _this.socket.on('connect', function () {
-                    _this.connectionStatus.className = 'is-connected'; // Join the room.
-
-                    _this.socket.emit('subscribe', 'inv');
-                  });
-
-                  _this.socket.on('tx', _this.onTransaction.bind(_this));
-
-                  _this.socket.on('block', _this.onBlock.bind(_this));
-
-                  _this.socket.on('disconnect', function () {
-                    _this.connectionStatus.className = 'is-disconnected';
-                  });
-
-                  _this.socket.on('reconnecting', function () {
-                    _this.connectionStatus.className = 'is-connecting';
-                  });
                 });
 
               case 26:
+                this.socket = _socket["default"].connect("https://insight.dash.org:443/");
+                this.socket.on('connect', function () {
+                  _this.connectionStatus.className = 'is-connected'; // Join the room.
+
+                  _this.socket.emit('subscribe', 'inv');
+                });
+                this.socket.on('tx', this.onTransaction.bind(this));
+                this.socket.on('block', this.onBlock.bind(this));
+                this.socket.on('disconnect', function () {
+                  _this.connectionStatus.className = 'is-disconnected';
+                });
+                this.socket.on('reconnecting', function () {
+                  _this.connectionStatus.className = 'is-connecting';
+                });
+
+              case 32:
               case "end":
                 return _context.stop();
             }
