@@ -18888,7 +18888,7 @@ function () {
                 block = new URL(window.location).searchParams.get('block');
 
                 if (!(block != null)) {
-                  _context.next = 23;
+                  _context.next = 24;
                   break;
                 }
 
@@ -18936,10 +18936,11 @@ function () {
                 break;
 
               case 21:
-                _context.next = 25;
+                this.connectionStatus.className = 'is-loaded';
+                _context.next = 26;
                 break;
 
-              case 23:
+              case 24:
                 // live display
                 this.socket = _socket["default"].connect("https://insight.dash.org:443/");
                 fetch('https://insight.dash.org/api/status?q=getLastBlockHash').then(function (resp) {
@@ -18965,9 +18966,6 @@ function () {
                     _this.connectionStatus.className = 'is-connecting';
                   });
                 });
-
-              case 25:
-                this.connectionStatus.className = 'is-loaded';
 
               case 26:
               case "end":
