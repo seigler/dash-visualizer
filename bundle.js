@@ -18846,6 +18846,10 @@ var _constants = require("./constants");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
+function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
+
+function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
@@ -18858,50 +18862,137 @@ var App =
 /*#__PURE__*/
 function () {
   function App() {
-    var _this = this;
-
     _classCallCheck(this, App);
-
-    this.socket = _socket["default"].connect("https://insight.dash.org:443/");
-    this.domRefList = [];
-    this.blockList = document.getElementById('blockList');
-    this.currentBlock = document.createElement('div');
-    this.currentBlock.className = 'block';
-    this.blockList.appendChild(this.currentBlock);
-    this.blockColors = ['000000'];
-    this.prevBlockHash = null;
-    fetch('https://insight.dash.org/api/status?q=getLastBlockHash').then(function (resp) {
-      return resp.json();
-    }).then(function (data) {
-      _this.prevBlockHash = data.lastblockhash;
-      _this.blockColors = App.generateColors(data.lastblockhash);
-    });
-    this.socket.on('connect', function () {
-      document.getElementById('connectionStatus').className = 'is-connected'; // Join the room.
-
-      _this.socket.emit('subscribe', 'inv');
-    });
-    this.socket.on('tx', this.onTransaction.bind(this));
-    this.socket.on('block', this.onBlock.bind(this));
-    this.socket.on('disconnect', function () {
-      document.getElementById('connectionStatus').className = 'is-disconnected';
-    });
-    this.socket.on('reconnecting', function () {
-      document.getElementById('connectionStatus').className = 'is-connecting';
-    });
   }
 
   _createClass(App, [{
+    key: "init",
+    value: function () {
+      var _init = _asyncToGenerator(
+      /*#__PURE__*/
+      regeneratorRuntime.mark(function _callee() {
+        var _this = this;
+
+        var block, txs, pages, prevHash, i;
+        return regeneratorRuntime.wrap(function _callee$(_context) {
+          while (1) {
+            switch (_context.prev = _context.next) {
+              case 0:
+                this.domRefList = [];
+                this.blockList = document.getElementById('blockList');
+                this.connectionStatus = document.getElementById('connectionStatus');
+                this.currentBlock = document.createElement('div');
+                this.currentBlock.className = 'block';
+                this.blockList.appendChild(this.currentBlock);
+                this.blockColors = ['000000'];
+                block = new URL(window.location).searchParams.get('block');
+
+                if (!(block != null)) {
+                  _context.next = 23;
+                  break;
+                }
+
+                // display one block
+                this.currentBlock.classList.add('solo');
+                this.connectionStatus.className = 'is-loading';
+                txs = [];
+                pages = 1;
+                prevHash = null;
+                i = 0;
+
+              case 15:
+                if (!(i < pages)) {
+                  _context.next = 21;
+                  break;
+                }
+
+                _context.next = 18;
+                return fetch("https://insight.dash.org/insight-api/txs?block=".concat(block, "&pageNum=").concat(i)).then(function (resp) {
+                  return resp.json();
+                }).then(function (thisBlockData) {
+                  // console.log({i, pages, prevHash, thisBlockData});
+                  if (!prevHash && thisBlockData.txs.length > 0) {
+                    return fetch('https://insight.dash.org/insight-api/block-index/' + (thisBlockData.txs[0].blockheight - 1)).then(function (resp) {
+                      return resp.json();
+                    }).then(function (prevBlockData) {
+                      prevHash = prevBlockData.blockHash;
+                      _this.blockColors = App.generateColors(prevHash);
+                      pages = thisBlockData.pagesTotal;
+
+                      for (var j = 0; j < thisBlockData.txs.length; ++j) {
+                        _this.onTransaction(thisBlockData.txs[j]);
+                      }
+                    });
+                  } else {
+                    for (var j = 0; j < thisBlockData.txs.length; ++j) {
+                      _this.onTransaction(thisBlockData.txs[j]);
+                    }
+                  }
+                });
+
+              case 18:
+                ++i;
+                _context.next = 15;
+                break;
+
+              case 21:
+                _context.next = 25;
+                break;
+
+              case 23:
+                // live display
+                this.socket = _socket["default"].connect("https://insight.dash.org:443/");
+                fetch('https://insight.dash.org/api/status?q=getLastBlockHash').then(function (resp) {
+                  return resp.json();
+                }).then(function (data) {
+                  _this.blockColors = App.generateColors(data.lastblockhash);
+
+                  _this.socket.on('connect', function () {
+                    _this.connectionStatus.className = 'is-connected'; // Join the room.
+
+                    _this.socket.emit('subscribe', 'inv');
+                  });
+
+                  _this.socket.on('tx', _this.onTransaction.bind(_this));
+
+                  _this.socket.on('block', _this.onBlock.bind(_this));
+
+                  _this.socket.on('disconnect', function () {
+                    _this.connectionStatus.className = 'is-disconnected';
+                  });
+
+                  _this.socket.on('reconnecting', function () {
+                    _this.connectionStatus.className = 'is-connecting';
+                  });
+                });
+
+              case 25:
+                this.connectionStatus.className = 'is-loaded';
+
+              case 26:
+              case "end":
+                return _context.stop();
+            }
+          }
+        }, _callee, this);
+      }));
+
+      function init() {
+        return _init.apply(this, arguments);
+      }
+
+      return init;
+    }()
+  }, {
     key: "onBlock",
     value: function onBlock(data) {
-      this.prevBlockHash = data;
-      this.blockColors = App.generateColors(this.prevBlockHash);
+      this.blockColors = App.generateColors(data);
       var blockLink = document.createElement('a');
       blockLink.className = 'explorer-link';
-      blockLink.href = 'https://insight.dash.org/insight/block/' + data;
+      blockLink.href = document.location + '?block=' + data;
       blockLink.target = '_blank';
       blockLink.setAttribute('rel', 'noopener');
-      blockLink.appendChild(document.createTextNode(data));
+      blockLink.appendChild(document.createTextNode('🗗'));
       this.currentBlock.appendChild(blockLink);
       this.currentBlock = document.createElement('div');
       this.currentBlock.className = 'block';
@@ -18928,8 +19019,8 @@ function () {
         rotation: parseInt(data.txid.slice(16, 17), 16) / 16,
         paintIndex: parseInt(data.txid.slice(17, 21), 16) / 65536,
         color: isMixing ? _constants.COLORS["private"] : data.txlock ? _constants.COLORS.instant : this.blockColors[Math.floor(parseInt(data.txid.slice(21, 23), 16) / 256 * this.blockColors.length)]
-      };
-      console.log('tx: ' + tx.value + (tx["private"] ? ' private' : '') + (tx.instant ? ' instant' : ''));
+      }; // console.log('tx: '+tx.value+(tx.private?' private':'')+(tx.instant?' instant':''));
+
       var paint = document.createElement('div');
       paint.classList.add('paint');
       paint.style.maskImage = 'url(assets/paint/' + (tx.value > 10 ? _constants.PAINT.big[Math.floor(tx.paintIndex * 12)] : _constants.PAINT.small[Math.floor(tx.paintIndex * 11)]) + ')';
@@ -18951,8 +19042,8 @@ function () {
       var scheme = schemeTypes[Math.floor(schemeFraction * schemeTypes.length)];
       var blockColorScheme = new _colorScheme["default"]();
       blockColorScheme.from_hue(hue).scheme(scheme).add_complement(true);
-      var colors = blockColorScheme.colors();
-      console.log('New color scheme: ' + scheme + ' based on %chue ' + hue, 'background-color:#' + colors[0]);
+      var colors = blockColorScheme.colors(); // console.log('New color scheme: ' + scheme + ' based on %chue ' + hue, 'background-color:#'+colors[0]);
+
       return colors;
     }
   }, {
@@ -19000,7 +19091,7 @@ var _App = _interopRequireDefault(require("./App"));
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
 document.addEventListener('DOMContentLoaded', function () {
-  new _App["default"]();
+  new _App["default"]().init();
 });
 });
 

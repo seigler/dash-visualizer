@@ -44,11 +44,16 @@ a {
       -ms-transform: translate(-50%,-50%);
           transform: translate(-50%,-50%);
 }
-@media (max-height: 77.5vw) {
+@media (max-height: 82.5vw) {
   .block:first-child {
     width: calc(100vh - 5vw);
     height: calc(100vh - 5vw);
   }
+}
+.block.solo {
+  left: 50%;
+  width: 95vmin;
+  height: 95vmin;
 }
 .block {
   width: 15vw;
@@ -63,16 +68,20 @@ a {
 .explorer-link {
   display: none;
   position: absolute;
-  z-index: 1;
-  font-size: 1.9vmin;
-  text-align: center;
-  background-color: hsla(0, 0%, 100%, 0.5);
-  color: transparent;
   height: 100%;
   width: 100%;
+  z-index: 1;
+  font-size: 1.9vmin;
+  justify-content: center;
+  align-items: center;
+  background-color: hsla(0, 0%, 0%, 0.5);
+  color: white;
+  opacity: 0.5;
+  font-size: 6vw;
+  line-height: 0;
 }
 .block:hover .explorer-link {
-  display: block;
+  display: flex;
 }
 .paint {
   position: absolute;
@@ -107,6 +116,7 @@ a {
 }
 
 #connectionStatus {
+  z-index: 1;
   right: 0;
   border-radius: 0 0 0 0.5em;
   border-width: 0 0 0.1em 0.1em;
@@ -127,11 +137,19 @@ a {
   content: 'Connecting...';
   color: black;
 }
+#connectionStatus.is-loading:before {
+  content: 'Loading...';
+  color: black;
+}
 #connectionStatus.is-connected:before {
   content: 'Connected';
   color: green;
 }
-#connectionStatus.is-connected {
+#connectionStatus.is-loaded:before {
+  content: 'Loaded';
+  color: green;
+}
+#connectionStatus.is-connected, #connectionStatus.is-loaded {
   -webkit-transition: -webkit-transform 0.5s;
   transition: -webkit-transform 0.5s;
   -o-transition: transform 0.5s;
