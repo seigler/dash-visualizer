@@ -19068,7 +19068,9 @@ function () {
         if (_this2.blockRefs.unshift(_this2.completedBlock) > 8) {
           var toDelete = _this2.blockRefs.pop();
 
-          toDelete.remove();
+          if (toDelete) {
+            toDelete.remove();
+          }
         }
 
         _this2.blockList.insertBefore(completedBlock, _this2.blockList.firstChild);
