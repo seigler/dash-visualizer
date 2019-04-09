@@ -18864,8 +18864,6 @@ function () {
   function App() {
     _classCallCheck(this, App);
 
-    this.blockRefs = [];
-    this.mempoolRefs = [];
     this.blockList = document.getElementById('blockList');
     this.connectionStatus = document.getElementById('connectionStatus');
     this.hero = document.getElementById('hero');
@@ -19027,54 +19025,41 @@ function () {
       blockLink.target = '_blank';
       blockLink.setAttribute('rel', 'noopener');
       blockLink.appendChild(document.createTextNode('🗗'));
-      fetch('https://insight.dash.org/insight-api/block/' + data).then(function (resp) {
-        return resp.json();
-      }).then(function (data) {
-        var mined = [];
+      setTimeout(function () {
+        // to prevent 404 when WS is ahead of regular API
+        fetch('https://insight.dash.org/insight-api/block/' + data).then(function (resp) {
+          return resp.json();
+        }).then(function (data) {
+          var leftovers = [];
 
-        for (var i in data.tx) {
-          var txid = data.tx[i];
-          var paint = document.getElementById(txid);
+          for (var i in data.tx) {
+            var txid = data.tx[i];
+            var paint = document.getElementById(txid);
 
-          if (paint) {
-            mined.push(paint);
-            completedBlock.insertBefore(paint, completedBlock.firstChild);
-          }
-        }
-
-        _this2.mempoolRefs = _this2.mempoolRefs.filter(function (item) {
-          return !mined.includes(item);
-        });
-
-        _this2.mempoolRefs.forEach(function (item) {
-          item.classList.add('stale');
-          item.data_ignored = item.data_ignored ? item.data_ignored + 1 : 1;
-        });
-
-        _this2.mempoolRefs.filter(function (item) {
-          if (item.data_ignored > 4) {
-            try {
-              _this2.hero.removeChild(item);
-            } catch (err) {}
-
-            return false;
+            if (paint) {
+              completedBlock.insertBefore(paint, completedBlock.firstChild);
+            }
           }
 
-          return true;
-        });
+          Array.from(_this2.hero.children).forEach(function (item) {
+            var age = 1 * item.style.getPropertyValue('--age'); // 1 * null = 0
 
-        completedBlock.appendChild(blockLink);
+            if (age > 10) {
+              item.remove();
+            } else {
+              item.classList.add('stale');
+              item.style.setProperty('--age', age + 1);
+            }
+          });
+          completedBlock.appendChild(blockLink);
 
-        if (_this2.blockRefs.unshift(_this2.completedBlock) > 8) {
-          var toDelete = _this2.blockRefs.pop();
+          _this2.blockList.insertBefore(completedBlock, _this2.blockList.firstChild);
 
-          if (toDelete) {
-            toDelete.remove();
+          if (_this2.blockList.children.length > 8) {
+            _this2.blockList.lastChild.remove();
           }
-        }
-
-        _this2.blockList.insertBefore(completedBlock, _this2.blockList.firstChild);
-      });
+        });
+      }, 200);
     }
   }, {
     key: "onTransactionBuilder",
@@ -19157,8 +19142,8 @@ var COLORS = {
 };
 exports.COLORS = COLORS;
 var PAINT = {
-  big: ['paint-big01.svg', 'paint-big02.svg', 'paint-big03.svg', 'paint-big04.svg', 'paint-big05.svg', 'paint-big06.svg', 'paint-big07.svg', 'paint-big08.svg', 'paint-big09.svg', 'paint-big00.svg', 'paint-big01.svg', 'paint-big11.svg', 'paint-big12.svg'],
-  small: ['paint01.svg', 'paint02.svg', 'paint03.svg', 'paint04.svg', 'paint05.svg', 'paint06.svg', 'paint07.svg', 'paint08.svg', 'paint09.svg', 'paint00.svg', 'paint01.svg', 'paint11.svg']
+  big: ['paint-big01.svg', 'paint-big02.svg', 'paint-big03.svg', 'paint-big04.svg', 'paint-big05.svg', 'paint-big06.svg', 'paint-big07.svg', 'paint-big08.svg', 'paint-big09.svg', 'paint-big10.svg', 'paint-big11.svg', 'paint-big12.svg'],
+  small: ['paint01.svg', 'paint02.svg', 'paint03.svg', 'paint04.svg', 'paint05.svg', 'paint06.svg', 'paint07.svg', 'paint08.svg', 'paint09.svg', 'paint10.svg']
 };
 exports.PAINT = PAINT;
 });
