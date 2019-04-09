@@ -9,7 +9,6 @@ import { PSDENOMINATIONS, COLORS, PAINT } from './constants';
 export default class App {
   constructor() {
     this.blockRefs = [];
-    this.mempoolRefs = [];
     this.blockList = document.getElementById('blockList');
     this.connectionStatus = document.getElementById('connectionStatus');
     this.hero = document.getElementById('hero');
@@ -109,32 +108,29 @@ export default class App {
     fetch('https://insight.dash.org/insight-api/block/' + data)
     .then(resp => resp.json())
     .then(data => {
-      let mined = [];
+      let leftovers = [];
       for (var i in data.tx) {
         const txid = data.tx[i];
         let paint = document.getElementById(txid);
         if (paint) {
-          mined.push(paint);
           completedBlock.insertBefore(paint, completedBlock.firstChild);
         }
       }
-      this.mempoolRefs = this.mempoolRefs.filter(item => !mined.includes(item));
-      this.mempoolRefs.forEach(item => {
-        item.classList.add('stale');
-        item.data_ignored = item.data_ignored ? item.data_ignored + 1 : 1;
-      });
-      this.mempoolRefs.filter(item => {
-        if (item.data_ignored > 4) {
-          try {
-            this.hero.removeChild(item);
-          } catch (err) { }
-          return false;
+      Array.from(this.hero.children).forEach(item => {
+        if (item.data_ignored > 3) {
+          item.remove();
+        } else {
+          if (item.data_ignored) {
+            item.data_ignored++;
+          } else {
+            item.classList.add('stale');
+            item.data_ignored = 1;
+          }
         }
-        return true;
       });
       completedBlock.appendChild(blockLink);
       if (this.blockRefs.unshift(this.completedBlock) > 8) {
-        let toDelete = this.blockRefs.pop();
+        var toDelete = this.blockRefs.pop();
         if (toDelete) {
           toDelete.remove();
         }
@@ -187,10 +183,6 @@ export default class App {
       paint.style.setProperty('--size', Math.log(1 + tx.value)/Math.log(2));
       paint.style.setProperty('--rotation', tx.rotation * 360 + 'deg');
       paint.style.setProperty('--color', tx.color);
-      if (addToMempool && this.mempoolRefs.unshift(paint) > 200) {
-        let toDelete = this.mempoolRefs.pop();
-        toDelete.remove();
-      }
       target.appendChild(paint);
     }
   }

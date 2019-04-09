@@ -13,7 +13,6 @@ body {
   background-color: #bbb;
   color: black;
   height: 100vh;
-  overflow: hidden;
 }
 * {
   -webkit-box-sizing: inherit;
@@ -45,7 +44,7 @@ a {
   overflow: hidden;
 }
 #hero {
-  position: absolute;
+  position: fixed;
   left: 41.125%;
   top: 50%;
   width: 77.5vw;

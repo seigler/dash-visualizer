@@ -22,8 +22,7 @@ export const PAINT = {
     'paint-big07.svg',
     'paint-big08.svg',
     'paint-big09.svg',
-    'paint-big00.svg',
-    'paint-big01.svg',
+    'paint-big10.svg',
     'paint-big11.svg',
     'paint-big12.svg'
     ],
@@ -37,8 +36,7 @@ export const PAINT = {
     'paint07.svg',
     'paint08.svg',
     'paint09.svg',
-    'paint00.svg',
-    'paint01.svg',
-    'paint11.svg'
+    'paint10.svg',
+    'paint11.svg',
     ]
 };
