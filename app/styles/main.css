@@ -99,6 +99,10 @@ a {
   -webkit-mask-position: center;
           mask-position: center;
 }
+#hero .paint.stale {
+  background-color: gray;
+  opacity: calc(1.1 - var(--age) / 10);
+}
 
 #muteToggle, #connectionStatus {
   position: fixed;

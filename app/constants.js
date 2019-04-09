@@ -24,7 +24,7 @@ export const PAINT = {
     'paint-big09.svg',
     'paint-big10.svg',
     'paint-big11.svg',
-    'paint-big12.svg'
+    'paint-big12.svg',
     ],
     small: [
     'paint01.svg',
@@ -37,6 +37,5 @@ export const PAINT = {
     'paint08.svg',
     'paint09.svg',
     'paint10.svg',
-    'paint11.svg',
     ]
 };

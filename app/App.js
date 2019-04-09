@@ -8,7 +8,6 @@ import { PSDENOMINATIONS, COLORS, PAINT } from './constants';
 
 export default class App {
   constructor() {
-    this.blockRefs = [];
     this.blockList = document.getElementById('blockList');
     this.connectionStatus = document.getElementById('connectionStatus');
     this.hero = document.getElementById('hero');
@@ -105,38 +104,34 @@ export default class App {
     blockLink.setAttribute('rel', 'noopener');
     blockLink.appendChild(document.createTextNode('🗗'));
 
-    fetch('https://insight.dash.org/insight-api/block/' + data)
-    .then(resp => resp.json())
-    .then(data => {
-      let leftovers = [];
-      for (var i in data.tx) {
-        const txid = data.tx[i];
-        let paint = document.getElementById(txid);
-        if (paint) {
-          completedBlock.insertBefore(paint, completedBlock.firstChild);
-        }
-      }
-      Array.from(this.hero.children).forEach(item => {
-        if (item.data_ignored > 3) {
-          item.remove();
-        } else {
-          if (item.data_ignored) {
-            item.data_ignored++;
-          } else {
-            item.classList.add('stale');
-            item.data_ignored = 1;
+    setTimeout(() => { // to prevent 404 when WS is ahead of regular API
+      fetch('https://insight.dash.org/insight-api/block/' + data)
+      .then(resp => resp.json())
+      .then(data => {
+        let leftovers = [];
+        for (var i in data.tx) {
+          const txid = data.tx[i];
+          let paint = document.getElementById(txid);
+          if (paint) {
+            completedBlock.insertBefore(paint, completedBlock.firstChild);
           }
         }
-      });
-      completedBlock.appendChild(blockLink);
-      if (this.blockRefs.unshift(this.completedBlock) > 8) {
-        var toDelete = this.blockRefs.pop();
-        if (toDelete) {
-          toDelete.remove();
+        Array.from(this.hero.children).forEach(item => {
+          const age = 1 * item.style.getPropertyValue('--age'); // 1 * null = 0
+          if (age > 10) {
+            item.remove();
+          } else {
+            item.classList.add('stale');
+            item.style.setProperty('--age',age + 1);
+          }
+        });
+        completedBlock.appendChild(blockLink);
+        this.blockList.insertBefore(completedBlock, this.blockList.firstChild);
+        if (this.blockList.children.length > 8) {
+          this.blockList.lastChild.remove();
         }
-      }
-      this.blockList.insertBefore(completedBlock, this.blockList.firstChild);
-    });
+      });
+    }, 200);
   }
 
   static isPrivateSend(components) {
