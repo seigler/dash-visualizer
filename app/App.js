@@ -106,25 +106,34 @@ export default class App {
 
     setTimeout(() => { // to prevent 404 when WS is ahead of regular API
       fetch('https://insight.dash.org/insight-api/block/' + data)
-      .then(resp => resp.json())
-      .then(data => {
-        let leftovers = [];
-        for (var i in data.tx) {
-          const txid = data.tx[i];
-          let paint = document.getElementById(txid);
-          if (paint) {
-            completedBlock.insertBefore(paint, completedBlock.firstChild);
-          }
+      .then(resp => {
+        if (resp.ok) {
+          return resp.json();
+        } else {
+          return null;
         }
-        Array.from(this.hero.children).forEach(item => {
-          const age = 1 * item.style.getPropertyValue('--age'); // 1 * null = 0
-          if (age > 10) {
-            item.remove();
-          } else {
-            item.classList.add('stale');
-            item.style.setProperty('--age',age + 1);
+      })
+      .then(data => {
+        if (data) {
+          for (var i in data.tx) {
+            const txid = data.tx[i];
+            let paint = document.getElementById(txid);
+            if (paint) {
+              completedBlock.insertBefore(paint, completedBlock.firstChild);
+            }
           }
-        });
+          Array.from(this.hero.children).forEach(item => {
+            const age = 1 * item.style.getPropertyValue('--age'); // 1 * null = 0
+            if (age > 10) {
+              item.remove();
+            } else {
+              item.classList.add('stale');
+              item.style.setProperty('--age',age + 1);
+            }
+          });
+        } else {
+          Array.from(this.hero.children).forEach(item => completedBlock.appendChild(item));
+        }
         completedBlock.appendChild(blockLink);
         this.blockList.insertBefore(completedBlock, this.blockList.firstChild);
         if (this.blockList.children.length > 8) {
@@ -147,19 +156,17 @@ export default class App {
   onTransactionBuilder(target, addToMempool = false) {
     return (data) => {
       const isMixing = App.isPrivateSend(data.vout);
-      const isInstant = data.txlock || (data.vin && data.vin.length <= 4);
-      const isSimple = data.txlock || (data.vin && data.vin.length <= 1);
+      const isComplex = data.vin && data.vin.length > 1;
       const tx = {
         id: data.txid,
         mixing: isMixing,
-        instant: isInstant,
-        simple: isSimple,
+        complex: isComplex,
         value: data.valueOut,
         x: parseInt(data.txid.slice(0, 4), 16) / 65536,
         y: parseInt(data.txid.slice(4, 8), 16) / 65536,
         rotation: parseInt(data.txid.slice(16, 17), 16) / 16,
         paintIndex: parseInt(data.txid.slice(17, 21), 16) / 65536,
-        color: isMixing ? COLORS.black : !isSimple ? COLORS.white : 
+        color: isMixing ? COLORS.black : isComplex ? COLORS.white : 
           'var(--color-'+
           Math.floor(parseInt(data.txid.slice(21, 23), 16) / 256 * this.blockColors.length)+
           ')'
