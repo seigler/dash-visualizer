@@ -19028,29 +19028,38 @@ function () {
       setTimeout(function () {
         // to prevent 404 when WS is ahead of regular API
         fetch('https://insight.dash.org/insight-api/block/' + data).then(function (resp) {
-          return resp.json();
+          if (resp.ok) {
+            return resp.json();
+          } else {
+            return null;
+          }
         }).then(function (data) {
-          var leftovers = [];
+          if (data) {
+            for (var i in data.tx) {
+              var txid = data.tx[i];
+              var paint = document.getElementById(txid);
 
-          for (var i in data.tx) {
-            var txid = data.tx[i];
-            var paint = document.getElementById(txid);
-
-            if (paint) {
-              completedBlock.insertBefore(paint, completedBlock.firstChild);
+              if (paint) {
+                completedBlock.insertBefore(paint, completedBlock.firstChild);
+              }
             }
+
+            Array.from(_this2.hero.children).forEach(function (item) {
+              var age = 1 * item.style.getPropertyValue('--age'); // 1 * null = 0
+
+              if (age > 10) {
+                item.remove();
+              } else {
+                item.classList.add('stale');
+                item.style.setProperty('--age', age + 1);
+              }
+            });
+          } else {
+            Array.from(_this2.hero.children).forEach(function (item) {
+              return completedBlock.appendChild(item);
+            });
           }
 
-          Array.from(_this2.hero.children).forEach(function (item) {
-            var age = 1 * item.style.getPropertyValue('--age'); // 1 * null = 0
-
-            if (age > 10) {
-              item.remove();
-            } else {
-              item.classList.add('stale');
-              item.style.setProperty('--age', age + 1);
-            }
-          });
           completedBlock.appendChild(blockLink);
 
           _this2.blockList.insertBefore(completedBlock, _this2.blockList.firstChild);
@@ -19069,19 +19078,17 @@ function () {
       var addToMempool = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
       return function (data) {
         var isMixing = App.isPrivateSend(data.vout);
-        var isInstant = data.txlock || data.vin && data.vin.length <= 4;
-        var isSimple = data.txlock || data.vin && data.vin.length <= 1;
+        var isComplex = data.vin && data.vin.length > 1;
         var tx = {
           id: data.txid,
           mixing: isMixing,
-          instant: isInstant,
-          simple: isSimple,
+          complex: isComplex,
           value: data.valueOut,
           x: parseInt(data.txid.slice(0, 4), 16) / 65536,
           y: parseInt(data.txid.slice(4, 8), 16) / 65536,
           rotation: parseInt(data.txid.slice(16, 17), 16) / 16,
           paintIndex: parseInt(data.txid.slice(17, 21), 16) / 65536,
-          color: isMixing ? _constants.COLORS.black : !isSimple ? _constants.COLORS.white : 'var(--color-' + Math.floor(parseInt(data.txid.slice(21, 23), 16) / 256 * _this3.blockColors.length) + ')'
+          color: isMixing ? _constants.COLORS.black : isComplex ? _constants.COLORS.white : 'var(--color-' + Math.floor(parseInt(data.txid.slice(21, 23), 16) / 256 * _this3.blockColors.length) + ')'
         };
         var paint = document.createElement('div');
         paint.id = tx.id;
