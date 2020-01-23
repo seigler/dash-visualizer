@@ -1,6 +1,6 @@
 {
   "name": "dash-visualizer",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Dash transaction visualizer",
   "main": "app.js",
   "repository": "git@github.com:seigler/dash-visualizer.git",
@@ -8,22 +8,21 @@
   "license": "MIT",
   "private": false,
   "dependencies": {
+    "bufferutil": "^4.0.1",
+    "color-scheme": "^1.0.1",
+    "socket.io": "^2.3.0",
+    "utf-8-validate": "^5.0.2"
+  },
+  "devDependencies": {
     "babel-brunch": "^7.0.1",
     "babel-polyfill": "^6.26.0",
     "babel-preset-env": "^1.7.0",
-    "color-scheme": "^1.0.1",
-    "less": "^2.7.2",
-    "socket.io": "^2.2.0"
+    "brunch": "^3.0.0",
+    "git-directory-deploy": "^1.5.1"
   },
   "scripts": {
     "watch": "brunch watch -s",
     "build": "brunch build",
     "deploy": "npm run build && git-directory-deploy --directory public/"
-  },
-  "devDependencies": {
-    "browser-sync-brunch": "^0.0.9",
-    "brunch": "^2.10.17",
-    "git-directory-deploy": "^1.5.1",
-    "less-brunch": "^2.10.0"
   }
 }

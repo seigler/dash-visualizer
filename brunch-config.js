@@ -10,10 +10,6 @@ module.exports = {
         /^node_modules/
       ]
     },
-    browserSync: {
-      port: 3334,
-      logLevel: "debug"
-    }
   },
   server: {
     run: true,
